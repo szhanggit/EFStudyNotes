@@ -1,0 +1,109 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-10-entity-splitting-in-entity.html
+
+ Part 10 - Entity splitting in entity framework
+Suggested Videos
+Part 7 - Using stored procedures with entity framework
+Part 8 - Using stored procedures with entity frameowrk code first approach
+Part 9 - Overriding stored procedure defaults with entity frameowrk code first approach
+
+
+
+Entity splitting refers to mapping an entity to two or more tables when the tables share a common key. 
+Let us understand Entity splitting with an example.
+
+
+
+We have the following 2 tables. Notice that both the table share the common key - EmployeeID.
+
+Employees Table
+Entity splitting
+
+EmployeeContactDetails Table
+Entity splitting in entity framework
+
+SQL Script to create the database objects and populate them with test data
+Create table Employees
+(
+     EmployeeID int primary key identity,
+     FirstName nvarchar(50),
+     LastName nvarchar(50),
+     Gender nvarchar(50)
+)
+GO
+
+Create table EmployeeContactDetails
+(
+     EmployeeID int primary key,
+     Email nvarchar(50),
+     Mobile nvarchar(50),
+     LandLine nvarchar(50)
+)
+GO
+
+Insert into Employees values ('Mark', 'Hastings', 'Male')
+Insert into Employees values ('Steve', 'Pound', 'Male')
+Insert into Employees values ('Ben', 'Hoskins', 'Male')
+Insert into Employees values ('Philip', 'Hastings', 'Male')
+Insert into Employees values ('Mary', 'Lambeth', 'Female')
+
+Insert into EmployeeContactDetails values
+(1, 'Mark@pragimtech.com', '111111111', '111111111')
+Insert into EmployeeContactDetails values
+(2, 'Steve@pragimtech.com', '2222222222', '2222222222')
+Insert into EmployeeContactDetails values
+(3, 'Ben@pragimtech.com', '3333333333', '3333333333')
+Insert into EmployeeContactDetails values
+(4, 'Philip@pragimtech.com', '44444444444', '44444444444')
+Insert into EmployeeContactDetails values
+(5, 'Mary@pragimtech.com', '5555555555', '5555555555')
+
+Now, when we use ADO.NET Entity Framework to generate entities from the database using database first approach, 
+by default 2 entities will be created, 
+i.e Empoyee and EmployeeContactDetail entities.
+Entity splitting example
+
+There is a one to one mapping between tables and entities. 
+We want a single Employee to map to both Employees & EmployeeContactDetails table.
+
+To achieve this
+1. Cut Email, Mobile and LandLine properties from EmployeeContactDetail entity and paste them in Employee entity
+2. Delete EmployeeContactDetail entity. On "Delete Unmapped Tables and Views" window click NO.
+3. Right click on Employee entity and select "Table Mapping" option from the context menu. 
+Map EmployeeId, Email, Mobile and LandLine properties to the respective columns of EmployeeContactDetails table.
+entity framework entity splitting example
+
+At this point we have only one Entity. Build the solution. Add a WebForm. Drag and drop the following 3 controls.
+1. GridView
+2. DetailsView
+3. EntityDataSource
+
+Configure EntityDataSource control
+a). Right click on EntityDataSource control and select "Show Smart Tag" option
+b) Click on Configure Data Source link
+c) Select EmployeeDBContext from the Named Connection dropdownlist and click Next
+d) Select Employees from EntitySetName dropdownlist and enable Inserts, Updates and Deletes.
+
+Configure GridView control
+a). Right click on GridView control and select "Show Smart Tag" option
+b) Click on "Auto Format" link and select "Colourful" scheme
+
+c) Select "EntityDataSource1" from "Choose Data Source" dropdownlist
+d) Select Enable Editing and Enable Deleting checkboxes
+
+Configure DetailsView control
+a) Right click on DetailsView control and select "Show Smart Tag" option
+b) Click on "Auto Format" link and select "Colourful" scheme
+c) Select "EntityDataSource1" from "Choose Data Source" dropdownlist
+d) Select Enable Inserting checkbox
+e) Set DeafultMode=Insert. Use properties window to set this.
+f) Set InsertVisible="false" for the EmployeeID BoundField. You can do this directly in the HTML Source.
+g) Generate ItemInserted event handler method for DetailsView control. Copy and paste the following code.
+protected void DetailsView1_ItemInserted(object sender, DetailsViewInsertedEventArgs e)
+{
+       GridView1.DataBind();
+
+}
+
+At this point run the application. 
+Insert, update and delete an Employee, 
+and notice that both the tables (Employees and EmployeeContactDetails) are updated as expected.
