@@ -1,0 +1,8 @@
+Inspecting and Cleaning Up a New EDM
+
+In the Properties window of the model, "Pluralize New Objects".
+If this property is set to False, the EntitySet name will consist of the Entity
+name with the word Set appended to it.
+
+1. Make Event to Trip, EventId to TripId
+2. Make Location to Destination, LocationId to DestinationId, LocationName to Name.

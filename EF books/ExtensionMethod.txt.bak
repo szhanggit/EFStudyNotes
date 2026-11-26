@@ -1,0 +1,26 @@
+context.People.SingleOrDefault(p => p.PersonId == _personId)
+DBContext API (P5)
+
+var contacts = context.Contacts.Where(c => c.FirstName == "Robert").OrderBy((foo) => foo.LastName);
+
+
+First and FirstOrDefault, which will return
+the first item in the result set. Additionally, Single and SingleOrDefault are useful when
+you are expecting only one item in the result set.
+
+var contact = context.Contacts.Single(c => c.ContactID == 1);
+
+from c in context.Contacts.Include("Addresses")
+where c.Addresses.Any((a) => a.CountryRegion == "UK")
+select c
+
+from c in context.Contacts.Include("Addresses")
+where c.LastName.StartsWith("J")
+select c
+
+query.ToList();
+
+context.Contacts
+.Select((c) => new { c.LastName,
+MaxCode = c.Addresses.Max(a => a.PostalCode) });
+

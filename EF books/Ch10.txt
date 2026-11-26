@@ -1,0 +1,49 @@
+Object Services is the part of the framework that creates and manages these objects.  (System.Data.Objects)   Need conceptual layer
+ObjectContext is the most important Object Services class.
+
+Object Services processes your LINQ to Entities and ObjectQuery queries, and materializes the query results as objects.
+Object Services also keeps track of the state of those returned objects and their relationships, maintains the metadata needed to compose queries on
+their properties, acts as a caching coordinator for those that are in-memory, and more.
+
+Metadata files are for composing queries. (CSDL, MSL, SSDL)
+
+The roughly seven roles of Object Services:
+• Processing queries
+• Materializing objects
+• Managing objects
+• Managing object relationships
+• Managing object state
+• Sending changes back to the database
+• Implementing serialization, data binding, and other services
+
+• Processing queries
+At a high level, query processing in the Entity Framework involves translating LINQ to Entities or 
+Entity SQL queries into SQL queries that a data store can execute. (Store command or native command like T-SQL command for SQL Server)
+
+"LINQ to Entities" leverages the "LINQ parser" to begin processing the query, whereas "ObjectQuery" uses the "Entity SQL parser".
+From a LINQ to Entities query to a command tree / From Entity SQL and query builder methods to a command tree => From command trees to data store commands
+
+LINQ to Entities, ObjectQuery, EntityClient.
+You will find that the "ObjectContext" calls on "EntityClient" to do the job of creating the connection and executing the command on the data store.
+"EntityClient" returns "EntityDataReader". It materizlize data according to conceptual layer.
+
+Enumerating over a query will force a query to execute implicitly.
+Another way to force execution is to append the ToList or ToArray LINQ method to a query.
+Like the ToList and ToArray methods, the Single and First methods will also force a query to execute. Their counterparts, SingleOrDefault and FirstOrDefault, also cause
+execution.
+
+app.config file that has the same name as the name of the context’s EntityContainer.
+
+• Managing object state
+When objects are returned from queries, "ObjectContext" creates these "ObjectStateEntry" objects, in effect, caching references to the entities. 
+In these state entries, ObjectContext not only keeps track of all of these entities, but also keeps track of other
+information regarding those entities, including their state, their original and current values, and their relationships to one another.
+
+"ObjectStateEntry" is a table.(Figure 10-9)
+
+The context uses the "EntityKey" as its link between the "ObjectStateEntry" and the entity.
+"EntityKey" is a critical class for keeping track of individual entities. It contains the entity’s identity information, 
+which could be from a single property, such as ContactID, or could be a composite key that depends on a number of the entity’s properties.
+
+When an object’s property is changed, the IEntityWithChangeTracker interface reports this change to the designated ChangeTracker—that is, the current ObjectContext, which updates the appropriate
+Current value of that object’s ObjectStateEntry.
