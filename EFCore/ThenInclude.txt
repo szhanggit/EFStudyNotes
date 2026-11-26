@@ -1,0 +1,31 @@
+https://blog.csdn.net/qq_40835338/article/details/104062661
+
+public class Company
+{
+    public string Name { get; set; }
+
+    public class Manager{ get; set; }
+
+}
+
+public class Manager
+{
+	public string Name { get; set; }
+	
+	public class Client { get; set; }
+}
+
+ public class Client
+ {
+    public string Name { get; set; }
+
+    public string ClientMessage { get; set; }
+ }
+
+using (var context = new MyContext())
+{
+   var customers = context.Company
+    .Include(i => i.Manager )
+      .ThenInclude(a => a.ClientMessage )
+    .ToList();
+}
