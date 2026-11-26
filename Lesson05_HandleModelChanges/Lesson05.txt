@@ -1,0 +1,100 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-5-how-to-handle-model-changes-in.html
+
+ Part 5 - How to handle model changes in entity framework
+Suggested Videos
+Part 2 - Entity Framework Model First Approach
+Part 3 - Entity Framework Code First Approach
+Part 4 - Customizing table & column names
+
+
+
+In this video we will discuss, how to handle model changes after the database is already created. 
+This is continuation to Part 4. Please watch Part 4 before proceeding.
+
+
+
+At the moment the Employee class is as shown below
+[Table("tblEmployees")]
+public class Employee
+{
+    public int Id { get; set; }
+    [Column("First_Name")]
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Gender { get; set; }
+    public int Salary { get; set; }
+    public int DepartmentId { get; set; }
+    [ForeignKey("DepartmentId")]
+    public Department Department { get; set; }
+}
+
+The following is the table Entity Framework has generated based on the above Employee class
+The model backing the DBContext context has changed since the database was created. 
+Consider using Code First Migrations to update the database
+
+Now let us add JobTitle property to the Employee class. The modified Employee class is shown below.
+[Table("tblEmployees")]
+public class Employee
+{
+    public int Id { get; set; }
+    [Column("First_Name")]
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Gender { get; set; }
+    public int Salary { get; set; }
+    public int DepartmentId { get; set; }
+    [ForeignKey("DepartmentId")]
+    public Department Department { get; set; }
+    public string JobTitle { get; set; }
+}
+
+At this point if we run the application, we get the following error. 
+The model backing the 'EmployeeDBContext' context has changed since the database was created. 
+Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269).
+
+
+This is because the model (i.e Employee class) has changed since the database was created. 
+This means the Model and the database are no longer in sync and hence we get the error. 
+To check if the model has changed since the database was created, entity framework uses __MigrationHistory table that is auto-generated.
+
+To fix this error, we have to tell entity framework what to do when the model changes.
+
+Add Global.asax file to the web application project. 
+Include the following code in Application_Start() method. 
+Here, we are telling the entity framework to drop and recreate database every time the model changes.
+Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EmployeeDBContext>());
+
+Another option is, to drop and recreate the database always. 
+To drop and recreate the database always we would change the code in Application_Start() method as shown below.
+Database.SetInitializer(new DropCreateDatabaseAlways<EmployeeDBContext>());
+
+Please Note: Database class is present in System.Data.Entity namespace.
+
+Run the application, and notice that the database is dropped and recreated. 
+But the webform does not display any data, as there is no data in Departments and tblEmployees tables. 
+For now let's manually populate the tables using the followng SQL script.
+Insert into Departments values ('IT', 'New York')
+Insert into Departments values ('HR', 'London')
+Insert into Departments values ('Payroll', 'Sydney')
+
+Insert into tblEmployees values ('Mark', 'Hastings', 'Male', 60000, 1, 'Developer')
+Insert into tblEmployees values ('Steve', 'Pound', 'Male', 45000, 3, 'Manager')
+Insert into tblEmployees values ('Ben', 'Hoskins', 'Male', 70000, 1, 'Developer')
+Insert into tblEmployees values ('Philip', 'Hastings', 'Male', 45000, 2, 'Recruiter')
+Insert into tblEmployees values ('Mary', 'Lambeth', 'Female', 30000, 2, 'Recruiter')
+Insert into tblEmployees values ('Valarie', 'Vikings', 'Female', 35000, 3, 'Manager')
+Insert into tblEmployees values ('John', 'Stanmore', 'Male', 80000, 1, 'Developer')
+
+Referesh the webform. Notice that JobTitle is not displayed on the WebForm. 
+To fix this add a boundfield to the GridView control that displays Employees details as shown below.
+
+<asp:GridView ID="GridView2" runat="server" AutoGenerateColumns="False"
+                DataSource='<%# Eval("Employees") %>'>
+    <Columns>
+        <asp:BoundField DataField="FirstName" HeaderText="First Name" />
+        <asp:BoundField DataField="LastName" HeaderText="Last Name" />
+        <asp:BoundField DataField="Gender" HeaderText="Gender" />
+        <asp:BoundField DataField="Salary" HeaderText="Salary" />
+        <asp:BoundField DataField="JobTitle" HeaderText="Job Title" />
+    </Columns>
+</asp:GridView>
