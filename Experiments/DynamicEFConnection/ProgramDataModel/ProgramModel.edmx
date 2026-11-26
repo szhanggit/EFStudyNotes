@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="GR_EV_UAT_MOVEModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="BatchLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ProgramId" Type="int" />
+          <Property Name="BatchName" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="ExecuteStartTime" Type="datetime" Nullable="false" />
+          <Property Name="ExecuteEndTime" Type="datetime" />
+          <Property Name="DataStartTime" Type="datetime" />
+          <Property Name="DataEndTime" Type="datetime" />
+          <Property Name="DataCount" Type="int" Nullable="false" />
+          <Property Name="Status" Type="tinyint" Nullable="false" />
+          <Property Name="IsVerifiedSuccess" Type="bit" />
+          <Property Name="DataEndTimeL" Type="bigint" />
+        </EntityType>
+        <EntityType Name="Program">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IdentityCode" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="DisplayName" Type="nvarchar" MaxLength="200" />
+          <Property Name="TimeOffset" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="MerchantMaxFailNumber" Type="int" Nullable="false" />
+          <Property Name="ShopMaxFailNumber" Type="int" Nullable="false" />
+          <Property Name="TerminalMaxFailNumber" Type="int" Nullable="false" />
+          <Property Name="IsDefaultProgram" Type="bit" Nullable="false" />
+          <Property Name="DateFormatString" Type="varchar" MaxLength="25" />
+          <Property Name="DateTimeFormatString" Type="varchar" MaxLength="25" />
+          <Property Name="IsEdenred" Type="bit" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_BatchLog_Program_ProgramId">
+          <End Role="Program" Type="Self.Program" Multiplicity="0..1" />
+          <End Role="BatchLog" Type="Self.BatchLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Program">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BatchLog">
+              <PropertyRef Name="ProgramId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="spMoveCheckingData" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <EntityContainer Name="GR_EV_UAT_MOVEModelStoreContainer">
+          <EntitySet Name="BatchLog" EntityType="Self.BatchLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Program" EntityType="Self.Program" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_BatchLog_Program_ProgramId" Association="Self.FK_BatchLog_Program_ProgramId">
+            <End Role="Program" EntitySet="Program" />
+            <End Role="BatchLog" EntitySet="BatchLog" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="GR_EV_UAT_MOVEModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Program">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IdentityCode" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DisplayName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="TimeOffset" Type="String" MaxLength="6" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="MerchantMaxFailNumber" Type="Int32" Nullable="false" />
+          <Property Name="ShopMaxFailNumber" Type="Int32" Nullable="false" />
+          <Property Name="TerminalMaxFailNumber" Type="Int32" Nullable="false" />
+          <Property Name="IsDefaultProgram" Type="Boolean" Nullable="false" />
+          <Property Name="DateFormatString" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="DateTimeFormatString" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="IsEdenred" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="BatchLogs" Relationship="GR_EV_UAT_MOVEModel.FK_BatchLog_Program_ProgramId" FromRole="Program" ToRole="BatchLog" />
+        </EntityType>
+        <EntityContainer Name="GR_EV_UAT_MOVEEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Programs" EntityType="Self.Program" />
+          <FunctionImport Name="spMoveCheckingData" ReturnType="Collection(GR_EV_UAT_MOVEModel.spMoveCheckingData_Result)" />
+          <EntitySet Name="BatchLogs" EntityType="GR_EV_UAT_MOVEModel.BatchLog" />
+          <AssociationSet Name="FK_BatchLog_Program_ProgramId" Association="GR_EV_UAT_MOVEModel.FK_BatchLog_Program_ProgramId">
+            <End Role="Program" EntitySet="Programs" />
+            <End Role="BatchLog" EntitySet="BatchLogs" />
+          </AssociationSet>
+        </EntityContainer>
+        <ComplexType Name="spMoveCheckingData_Result">
+          <Property Type="Int32" Name="Id" Nullable="false" />
+          <Property Type="String" Name="BatchName" Nullable="true" MaxLength="100" />
+          <Property Type="DateTime" Name="ExecuteStartTime" Nullable="true" Precision="23" />
+          <Property Type="Decimal" Name="ExecutePeriod" Nullable="true" Precision="20" Scale="2" />
+          <Property Type="Int32" Name="Status" Nullable="true" />
+          <Property Type="Int32" Name="Diff" Nullable="true" />
+          <Property Type="Int32" Name="IsGood" Nullable="true" />
+        </ComplexType>
+        <EntityType Name="BatchLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProgramId" Type="Int32" />
+          <Property Name="BatchName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ExecuteStartTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ExecuteEndTime" Type="DateTime" Precision="3" />
+          <Property Name="DataStartTime" Type="DateTime" Precision="3" />
+          <Property Name="DataEndTime" Type="DateTime" Precision="3" />
+          <Property Name="DataCount" Type="Int32" Nullable="false" />
+          <Property Name="Status" Type="Byte" Nullable="false" />
+          <Property Name="IsVerifiedSuccess" Type="Boolean" />
+          <Property Name="DataEndTimeL" Type="Int64" />
+          <NavigationProperty Name="Program" Relationship="GR_EV_UAT_MOVEModel.FK_BatchLog_Program_ProgramId" FromRole="BatchLog" ToRole="Program" />
+        </EntityType>
+        <Association Name="FK_BatchLog_Program_ProgramId">
+          <End Type="GR_EV_UAT_MOVEModel.Program" Role="Program" Multiplicity="0..1" />
+          <End Type="GR_EV_UAT_MOVEModel.BatchLog" Role="BatchLog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Program">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BatchLog">
+              <PropertyRef Name="ProgramId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="GR_EV_UAT_MOVEModelStoreContainer" CdmEntityContainer="GR_EV_UAT_MOVEEntities">
+          <EntitySetMapping Name="Programs">
+            <EntityTypeMapping TypeName="GR_EV_UAT_MOVEModel.Program">
+              <MappingFragment StoreEntitySet="Program">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="IdentityCode" ColumnName="IdentityCode" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+                <ScalarProperty Name="TimeOffset" ColumnName="TimeOffset" />
+                <ScalarProperty Name="MerchantMaxFailNumber" ColumnName="MerchantMaxFailNumber" />
+                <ScalarProperty Name="ShopMaxFailNumber" ColumnName="ShopMaxFailNumber" />
+                <ScalarProperty Name="TerminalMaxFailNumber" ColumnName="TerminalMaxFailNumber" />
+                <ScalarProperty Name="IsDefaultProgram" ColumnName="IsDefaultProgram" />
+                <ScalarProperty Name="DateFormatString" ColumnName="DateFormatString" />
+                <ScalarProperty Name="DateTimeFormatString" ColumnName="DateTimeFormatString" />
+                <ScalarProperty Name="IsEdenred" ColumnName="IsEdenred" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="spMoveCheckingData" FunctionName="GR_EV_UAT_MOVEModel.Store.spMoveCheckingData">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="GR_EV_UAT_MOVEModel.spMoveCheckingData_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="BatchName" ColumnName="BatchName" />
+                <ScalarProperty Name="ExecuteStartTime" ColumnName="ExecuteStartTime" />
+                <ScalarProperty Name="ExecutePeriod" ColumnName="ExecutePeriod" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Diff" ColumnName="Diff" />
+                <ScalarProperty Name="IsGood" ColumnName="IsGood" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="BatchLogs">
+            <EntityTypeMapping TypeName="GR_EV_UAT_MOVEModel.BatchLog">
+              <MappingFragment StoreEntitySet="BatchLog">
+                <ScalarProperty Name="DataEndTimeL" ColumnName="DataEndTimeL" />
+                <ScalarProperty Name="IsVerifiedSuccess" ColumnName="IsVerifiedSuccess" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="DataCount" ColumnName="DataCount" />
+                <ScalarProperty Name="DataEndTime" ColumnName="DataEndTime" />
+                <ScalarProperty Name="DataStartTime" ColumnName="DataStartTime" />
+                <ScalarProperty Name="ExecuteEndTime" ColumnName="ExecuteEndTime" />
+                <ScalarProperty Name="ExecuteStartTime" ColumnName="ExecuteStartTime" />
+                <ScalarProperty Name="BatchName" ColumnName="BatchName" />
+                <ScalarProperty Name="ProgramId" ColumnName="ProgramId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

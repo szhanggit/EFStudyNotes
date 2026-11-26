@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="DIVEModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="EmailMessage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaskId" Type="bigint" Nullable="false" />
+          <Property Name="MessageStatus" Type="int" />
+          <Property Name="MessageLocalId" Type="bigint" Nullable="false" />
+          <Property Name="MessageSPId" Type="nvarchar" MaxLength="100" />
+          <Property Name="To" Type="nvarchar" MaxLength="1000" Nullable="false" />
+          <Property Name="CC" Type="nvarchar" MaxLength="1000" />
+          <Property Name="BCC" Type="nvarchar" MaxLength="1000" />
+          <Property Name="Parameters" Type="nvarchar(max)" />
+          <Property Name="Attachments" Type="nvarchar" MaxLength="1000" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="SentOn" Type="datetime" />
+          <Property Name="Comment" Type="nvarchar" MaxLength="500" />
+          <Property Name="IsTracked" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SLMSMessage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaskId" Type="bigint" Nullable="false" />
+          <Property Name="MessageStatus" Type="int" />
+          <Property Name="MessageLocalId" Type="bigint" Nullable="false" />
+          <Property Name="MessageSPId" Type="nvarchar" MaxLength="100" />
+          <Property Name="MobilePhone" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Parameters" Type="nvarchar(max)" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="SentOn" Type="datetime" />
+          <Property Name="Comment" Type="nvarchar" MaxLength="500" />
+          <Property Name="IsTracked" Type="bit" Nullable="false" />
+        </EntityType>
+        <Function Name="spFetchDiveEmailData" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="spFetchDiveSLMSData" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <EntityContainer Name="DIVEModelStoreContainer">
+          <EntitySet Name="EmailMessage" EntityType="Self.EmailMessage" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SLMSMessage" EntityType="Self.SLMSMessage" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="DIVEModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="EmailMessage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaskId" Type="Int64" Nullable="false" />
+          <Property Name="MessageStatus" Type="Int32" />
+          <Property Name="MessageLocalId" Type="Int64" Nullable="false" />
+          <Property Name="MessageSPId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="To" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CC" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="BCC" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="Parameters" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Attachments" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="SentOn" Type="DateTime" Precision="3" />
+          <Property Name="Comment" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="IsTracked" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SLMSMessage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaskId" Type="Int64" Nullable="false" />
+          <Property Name="MessageStatus" Type="Int32" />
+          <Property Name="MessageLocalId" Type="Int64" Nullable="false" />
+          <Property Name="MessageSPId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="MobilePhone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Parameters" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="SentOn" Type="DateTime" Precision="3" />
+          <Property Name="Comment" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="IsTracked" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="DIVEEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="EmailMessages" EntityType="Self.EmailMessage" />
+          <EntitySet Name="SLMSMessages" EntityType="Self.SLMSMessage" />
+          <FunctionImport Name="spFetchDiveEmailData" ReturnType="Collection(DIVEModel.spFetchDiveEmailData_Result)" />
+          <FunctionImport Name="spFetchDiveSLMSData" ReturnType="Collection(DIVEModel.spFetchDiveSLMSData_Result)" />
+        </EntityContainer>
+        <ComplexType Name="spFetchDiveEmailData_Result">
+          <Property Type="Int32" Name="Id" Nullable="true" />
+          <Property Type="Int32" Name="TaskId" Nullable="true" />
+          <Property Type="Int32" Name="MessageStatus" Nullable="true" />
+          <Property Type="Int32" Name="MessageLocalId" Nullable="true" />
+          <Property Type="DateTime" Name="CreatedOn" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="SentOn" Nullable="true" Precision="23" />
+          <Property Type="String" Name="Comment" Nullable="true" MaxLength="1000" />
+        </ComplexType>
+        <ComplexType Name="spFetchDiveSLMSData_Result">
+          <Property Type="Int32" Name="Id" Nullable="true" />
+          <Property Type="Int32" Name="TaskId" Nullable="true" />
+          <Property Type="Int32" Name="MessageStatus" Nullable="true" />
+          <Property Type="Int32" Name="MessageLocalId" Nullable="true" />
+          <Property Type="DateTime" Name="CreatedOn" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="SentOn" Nullable="true" Precision="23" />
+          <Property Type="String" Name="Comment" Nullable="true" MaxLength="1000" />
+        </ComplexType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="DIVEModelStoreContainer" CdmEntityContainer="DIVEEntities">
+          <EntitySetMapping Name="EmailMessages">
+            <EntityTypeMapping TypeName="DIVEModel.EmailMessage">
+              <MappingFragment StoreEntitySet="EmailMessage">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="TaskId" ColumnName="TaskId" />
+                <ScalarProperty Name="MessageStatus" ColumnName="MessageStatus" />
+                <ScalarProperty Name="MessageLocalId" ColumnName="MessageLocalId" />
+                <ScalarProperty Name="MessageSPId" ColumnName="MessageSPId" />
+                <ScalarProperty Name="To" ColumnName="To" />
+                <ScalarProperty Name="CC" ColumnName="CC" />
+                <ScalarProperty Name="BCC" ColumnName="BCC" />
+                <ScalarProperty Name="Parameters" ColumnName="Parameters" />
+                <ScalarProperty Name="Attachments" ColumnName="Attachments" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="SentOn" ColumnName="SentOn" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="IsTracked" ColumnName="IsTracked" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SLMSMessages">
+            <EntityTypeMapping TypeName="DIVEModel.SLMSMessage">
+              <MappingFragment StoreEntitySet="SLMSMessage">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="TaskId" ColumnName="TaskId" />
+                <ScalarProperty Name="MessageStatus" ColumnName="MessageStatus" />
+                <ScalarProperty Name="MessageLocalId" ColumnName="MessageLocalId" />
+                <ScalarProperty Name="MessageSPId" ColumnName="MessageSPId" />
+                <ScalarProperty Name="MobilePhone" ColumnName="MobilePhone" />
+                <ScalarProperty Name="Parameters" ColumnName="Parameters" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="SentOn" ColumnName="SentOn" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="IsTracked" ColumnName="IsTracked" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="spFetchDiveEmailData" FunctionName="DIVEModel.Store.spFetchDiveEmailData">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="DIVEModel.spFetchDiveEmailData_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="TaskId" ColumnName="TaskId" />
+                <ScalarProperty Name="MessageStatus" ColumnName="MessageStatus" />
+                <ScalarProperty Name="MessageLocalId" ColumnName="MessageLocalId" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="SentOn" ColumnName="SentOn" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="spFetchDiveSLMSData" FunctionName="DIVEModel.Store.spFetchDiveSLMSData">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="DIVEModel.spFetchDiveSLMSData_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="TaskId" ColumnName="TaskId" />
+                <ScalarProperty Name="MessageStatus" ColumnName="MessageStatus" />
+                <ScalarProperty Name="MessageLocalId" ColumnName="MessageLocalId" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="SentOn" ColumnName="SentOn" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
