@@ -1,0 +1,38 @@
+﻿Create Table MTMCourses
+(
+     CourseID int identity primary key,
+     CourseName nvarchar(50)
+)
+GO
+
+Create Table MTMStudents
+(
+     StudentID int identity primary key,
+     StudentName nvarchar(50)
+)
+GO
+
+Create Table MTMStudentCourses
+(
+     StudentID int not null foreign key references MTMStudents(StudentID),
+     CourseID int not null foreign key references MTMCourses(CourseID)
+     primary key (StudentID, CourseID)
+)
+GO
+
+Insert into MTMCourses values ('C#')
+Insert into MTMCourses values ('ASP.NET')
+Insert into MTMCourses values ('SQL Server')
+Insert into MTMCourses values ('WCF')
+GO
+
+Insert into MTMStudents values ('Mike')
+Insert into MTMStudents values ('John')
+GO
+
+Insert into MTMStudentCourses values (1, 1)
+Insert into MTMStudentCourses values (1, 2)
+Insert into MTMStudentCourses values (2, 1)
+Insert into MTMStudentCourses values (2, 2)
+Insert into MTMStudentCourses values (2, 3)
+GO

@@ -1,0 +1,143 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-22-many-to-many-relationship-in.html
+
+ Part 22 - Many to many relationship in entity framework
+Suggested Videos
+Part 19 - Table Per Hierarchy (TPH) inheritance in entity framework with code first
+Part 20 - Table Per Type (TPT) inheritance in entity framework
+Part 21 - Table Per Type (TPT) inheritance in entity framework code first
+
+
+
+In this video we will discuss many-to-many relationship in entity framework with database first approach. 
+We will be using the following 3 tables in this demo. There is a Many-to-Many relationship between Courses and Students. 
+A student can enroll into many courses and a single course can have many students enrolled. 
+The data is stored in the StudentCourses bridge table
+
+
+
+Many to many relationship in entity framework
+
+SQL Script to create the above 3 tables
+Create Table Courses
+(
+     CourseID int identity primary key,
+     CourseName nvarchar(50)
+)
+GO
+
+Create Table Students
+(
+     StudentID int identity primary key,
+     StudentName nvarchar(50)
+)
+GO
+
+Create Table StudentCourses
+(
+     StudentID int not null foreign key references Students(StudentID),
+     CourseID int not null foreign key references Courses(CourseID)
+     primary key (StudentID, CourseID)
+)
+GO
+
+Insert into Courses values ('C#')
+Insert into Courses values ('ASP.NET')
+Insert into Courses values ('SQL Server')
+Insert into Courses values ('WCF')
+GO
+
+Insert into Students values ('Mike')
+Insert into Students values ('John')
+GO
+
+Insert into StudentCourses values (1, 1)
+Insert into StudentCourses values (1, 2)
+Insert into StudentCourses values (2, 1)
+Insert into StudentCourses values (2, 2)
+Insert into StudentCourses values (2, 3)
+GO
+
+Now if we generate an ADO.NET entity data model based on the above 3 tables, 
+only 2 entities (Student & Course) are generated with a Many-to-Many association between them. 
+Notice that an entity for the bridge table (StudentCourses) is not generated in the entity model. 
+Also, notice that we have navigation properties to navigate from Course to Students and from Student to Courses.
+Many to many association in entity framework
+
+At this point, right click on Many-to-Many association and select Table Mapping option. 
+In the Mapping Details window notice that, the StudentCourses Many-to-Many association is mapped to StudentCourses database table.
+mapping many to many association in entity framework
+
+Now, let us see how to query the data. 
+We want to display all the students names and the courses they have opted into.
+many to many association example in entity framework
+
+Drag and drop a GridView control on the webform. Copy and paste the following code in the code-behind file.
+protected void Page_Load(object sender, EventArgs e)
+{
+    EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+    GridView1.DataSource = from student in employeeDBContext.Students
+                            from course in student.Courses
+                            select new
+                            {
+                                StudentName = student.StudentName,
+                                CourseName = course.CourseName
+                            };
+    GridView1.DataBind();
+}
+
+Turn on SQL Profiler and load the webform. Notice that the generated SQL Query joins all the 3 tables (Students, Courses & StudentCourses)
+SELECT
+[Extent1].[StudentID] AS [StudentID],
+[Extent1].[StudentName] AS [StudentName],
+[Join1].[CourseName] AS [CourseName]
+FROM  [dbo].[Students] AS [Extent1]
+INNER JOIN  (SELECT [Extent2].[StudentID] AS [StudentID],
+[Extent3].[CourseName] AS [CourseName]
+FROM  [dbo].[StudentCourses] AS [Extent2]
+INNER JOIN [dbo].[Courses] AS [Extent3]
+ON [Extent3].[CourseID] = [Extent2].[CourseID] )
+AS [Join1] ON [Extent1].[StudentID] = [Join1].[StudentID]
+
+Modifying data:
+Assign Mike to WCF course
+Remove John from SQL Server course
+
+To achieve this,
+1. Drag and Drop 2 button controls on the web form
+2. Change text on the 
+     First button to Assign WCF Course to Mike
+     Second button to Remove John from SQL Server Course
+3. Copy and paste the following code in the respective click event handler methods
+
+protected void Button1_Click(object sender, EventArgs e)
+{
+    EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+    Course WCFCourse = employeeDBContext.Courses
+        .FirstOrDefault(x => x.CourseID == 4);
+
+    employeeDBContext.Students.FirstOrDefault(x => x.StudentID == 1)
+        .Courses.Add(WCFCourse);
+    employeeDBContext.SaveChanges();
+}
+
+protected void Button2_Click(object sender, EventArgs e)
+{
+    EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+    Course SQLServerCourse = employeeDBContext.Courses
+        .FirstOrDefault(x => x.CourseID == 3);
+
+    employeeDBContext.Students.FirstOrDefault(x => x.StudentID == 2)
+        .Courses.Remove(SQLServerCourse);
+    employeeDBContext.SaveChanges();
+}
+
+Turn on SQL Profiler and load the webform. Click on the buttons and notice the queries generated.
+
+Query to assign WCF course to Mike
+exec sp_executesql N'insert [dbo].[StudentCourses]([StudentID], [CourseID])
+values (@0, @1)',N'@0 int,@1 int',@0=1,@1=4
+
+Query to remove John from SQL Server Course
+exec sp_executesql N'delete [dbo].[StudentCourses] where
+(([StudentID] = @0) and ([CourseID] = @1))',N'@0 int,@1 int',@0=2,@1=3

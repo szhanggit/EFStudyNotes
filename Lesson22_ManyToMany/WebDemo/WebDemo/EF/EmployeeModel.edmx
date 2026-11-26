@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="EmployeeModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="MTMCourses">
+          <Key>
+            <PropertyRef Name="CourseID" />
+          </Key>
+          <Property Name="CourseID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CourseName" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="MTMStudentCourses">
+          <Key>
+            <PropertyRef Name="StudentID" />
+            <PropertyRef Name="CourseID" />
+          </Key>
+          <Property Name="StudentID" Type="int" Nullable="false" />
+          <Property Name="CourseID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="MTMStudents">
+          <Key>
+            <PropertyRef Name="StudentID" />
+          </Key>
+          <Property Name="StudentID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StudentName" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <Association Name="FK__MTMStuden__Cours__0D7A0286">
+          <End Role="MTMCourses" Type="Self.MTMCourses" Multiplicity="1" />
+          <End Role="MTMStudentCourses" Type="Self.MTMStudentCourses" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MTMCourses">
+              <PropertyRef Name="CourseID" />
+            </Principal>
+            <Dependent Role="MTMStudentCourses">
+              <PropertyRef Name="CourseID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__MTMStuden__Stude__0C85DE4D">
+          <End Role="MTMStudents" Type="Self.MTMStudents" Multiplicity="1" />
+          <End Role="MTMStudentCourses" Type="Self.MTMStudentCourses" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MTMStudents">
+              <PropertyRef Name="StudentID" />
+            </Principal>
+            <Dependent Role="MTMStudentCourses">
+              <PropertyRef Name="StudentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="EmployeeModelStoreContainer">
+          <EntitySet Name="MTMCourses" EntityType="Self.MTMCourses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MTMStudentCourses" EntityType="Self.MTMStudentCourses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MTMStudents" EntityType="Self.MTMStudents" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__MTMStuden__Cours__0D7A0286" Association="Self.FK__MTMStuden__Cours__0D7A0286">
+            <End Role="MTMCourses" EntitySet="MTMCourses" />
+            <End Role="MTMStudentCourses" EntitySet="MTMStudentCourses" />
+          </AssociationSet>
+          <AssociationSet Name="FK__MTMStuden__Stude__0C85DE4D" Association="Self.FK__MTMStuden__Stude__0C85DE4D">
+            <End Role="MTMStudents" EntitySet="MTMStudents" />
+            <End Role="MTMStudentCourses" EntitySet="MTMStudentCourses" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="EmployeeModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="MTMCours">
+          <Key>
+            <PropertyRef Name="CourseID" />
+          </Key>
+          <Property Name="CourseID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CourseName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="MTMStudents" Relationship="Self.MTMStudentCourses" FromRole="MTMCourses" ToRole="MTMStudents" />
+        </EntityType>
+        <EntityType Name="MTMStudent">
+          <Key>
+            <PropertyRef Name="StudentID" />
+          </Key>
+          <Property Name="StudentID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StudentName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="MTMCourses" Relationship="Self.MTMStudentCourses" FromRole="MTMStudents" ToRole="MTMCourses" />
+        </EntityType>
+        <Association Name="MTMStudentCourses">
+          <End Role="MTMCourses" Type="Self.MTMCours" Multiplicity="*" />
+          <End Role="MTMStudents" Type="Self.MTMStudent" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="EmployeeDBContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="MTMCourses" EntityType="Self.MTMCours" />
+          <EntitySet Name="MTMStudents" EntityType="Self.MTMStudent" />
+          <AssociationSet Name="MTMStudentCourses" Association="Self.MTMStudentCourses">
+            <End Role="MTMCourses" EntitySet="MTMCourses" />
+            <End Role="MTMStudents" EntitySet="MTMStudents" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="EmployeeModelStoreContainer" CdmEntityContainer="EmployeeDBContext">
+          <EntitySetMapping Name="MTMCourses">
+            <EntityTypeMapping TypeName="EmployeeModel.MTMCours">
+              <MappingFragment StoreEntitySet="MTMCourses">
+                <ScalarProperty Name="CourseID" ColumnName="CourseID" />
+                <ScalarProperty Name="CourseName" ColumnName="CourseName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MTMStudents">
+            <EntityTypeMapping TypeName="EmployeeModel.MTMStudent">
+              <MappingFragment StoreEntitySet="MTMStudents">
+                <ScalarProperty Name="StudentID" ColumnName="StudentID" />
+                <ScalarProperty Name="StudentName" ColumnName="StudentName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="MTMStudentCourses" TypeName="EmployeeModel.MTMStudentCourses" StoreEntitySet="MTMStudentCourses">
+            <EndProperty Name="MTMCourses">
+              <ScalarProperty Name="CourseID" ColumnName="CourseID" />
+            </EndProperty>
+            <EndProperty Name="MTMStudents">
+              <ScalarProperty Name="StudentID" ColumnName="StudentID" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="无" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
