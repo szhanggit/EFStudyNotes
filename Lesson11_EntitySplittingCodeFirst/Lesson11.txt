@@ -1,0 +1,209 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-11-entity-splitting-in-entity.html
+
+ Part 11 - Entity splitting in entity framework with code first approach
+Suggested Videos
+Part 8 - Using stored procedures with entity frameowrk code first approach
+Part 9 - Overriding stored procedure defaults with entity frameowrk code first approach
+Part 10 - Entity splitting in entity framework
+
+
+
+Entity splitting refers to mapping an entity to two or more tables when the tables share a common key. 
+We discussed, Entity splitting with database first approach in Part 10. 
+In this video we will discuss Entity splitting with code first approach.
+
+
+
+Step 1: Create a new empty asp.net web application project. Name it Demo. Install entity framework if it's not already installed.
+
+Step 2: Add a class file to the project. Name it Employee.cs. Copy and paste the following code.
+namespace Demo
+{
+    public class Employee
+    {
+        // These property values should be stored in Employees Table
+        public int EmployeeId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Gender { get; set; }
+
+        // These property values should be stored in EmployeeContactDetails Table
+        public string Email { get; set; }
+        public string Mobile { get; set; }
+        public string Landline { get; set; }
+    }
+}
+
+Step 3: Add a class file to the project. Name it EmployeeDBContext.cs. Copy and paste the following code.
+using System.Data.Entity;
+namespace Demo
+{
+    public class EmployeeDBContext : DbContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+    }
+}
+
+Step 4: Add a class file to the project. Name it EmployeeRepository.cs. Copy and paste the following code.
+using System.Collections.Generic;
+using System.Linq;
+namespace Demo
+{
+    public class EmployeeRepository
+    {
+        EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+        public List<Employee> GetEmployees()
+        {
+            return employeeDBContext.Employees.ToList();
+        }
+
+        public void InsertEmployee(Employee employee)
+        {
+            employeeDBContext.Employees.Add(employee);
+            employeeDBContext.SaveChanges();
+        }
+
+        public void UpdateEmployee(Employee employee)
+        {
+            Employee employeeToUpdate = employeeDBContext.Employees
+                .SingleOrDefault(x => x.EmployeeId == employee.EmployeeId);
+            employeeToUpdate.EmployeeId = employee.EmployeeId;
+            employeeToUpdate.FirstName = employee.FirstName;
+            employeeToUpdate.Gender = employee.Gender;
+            employeeToUpdate.Email = employee.Email;
+            employeeToUpdate.Mobile = employee.Mobile;
+            employeeToUpdate.Landline = employee.Landline;
+
+            employeeDBContext.SaveChanges();
+        }
+
+        public void DeleteEmployee(Employee employee)
+        {
+            Employee employeeToDelete = employeeDBContext.Employees
+                .SingleOrDefault(x => x.EmployeeId == employee.EmployeeId);
+            employeeDBContext.Employees.Remove(employeeToDelete);
+            employeeDBContext.SaveChanges();
+        }
+    }
+}
+
+Step 5: Add the database connection string in web.config file.
+<connectionStrings>
+  <add name="EmployeeDBContext"
+        connectionString="server=.; database=Sample; integrated security=SSPI;"
+        providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+Step 6: Add a webform to the project. Drag and drop the following 3 controls and build the solution.
+1. GridView
+2. DetailsView
+3. ObjectDataSource
+
+Step 7: Configure ObjectDataSource control
+a).Right click on ObjectDataSource control and select "Show Smart Tag" option
+b) Click on Configure Data Source link
+c) Select Demo.EmployeeRepository on Choose a Business Object screen and click Next
+d) On Define Data Methods screen
+    i) On SELECT tab - Select GetEmployees() method
+    ii) On UPDATE tab - Select UpdateEmployee(Employee employee) method
+    iii) On INSERT tab - Select InsertEmployee(Employee employee) method
+    iv) On DELETE tab - Select DeletEmployee(Employee employee) method
+
+Step 8: Configure GridView control
+a). Right click on GridView control and select "Show Smart Tag" option
+b) Click on "Auto Format" link and select "Colourful" scheme
+c) Select "ObjectDataSource1" from "Choose Data Source" dropdownlist
+d) Select Enable Editing and Enable Deleting checkboxes
+e) Set DataKeyNames="EmployeeId". Do this in the properties window of the GridView control
+f) Set ReadOnly="true" for the EmployeeId BoundField. You can do this directly in the HTML Source.
+
+Step 9: Configure DetailsView control
+a) Right click on DetailsView control and select "Show Smart Tag" option
+b) Click on "Auto Format" link and select "Colourful" scheme
+
+c) Select "ObjectDataSource1" from "Choose Data Source" dropdownlist
+d) Select Enable Inserting checkbox
+e) Set DeafultMode=Insert. Use properties window to set this.
+f) Set InsertVisible="false" for the EmployeeId BoundField. You can do this directly in the HTML Source.
+g) Generate ItemInserted event handler method for DetailsView control. Copy and paste the following code.
+protected void DetailsView1_ItemInserted(object sender, DetailsViewInsertedEventArgs e)
+{
+    GridView1.DataBind();
+}
+
+Step 10: If you already have Sample database in SQL Server. Delete it from SQL Server Management Studio.
+
+Step 11: Run the application by pressing CTRL + F5. 
+By default entity framework creates one Table i.e Employees table. 
+But we want entity framework to create the following 2 tables.
+a) Employees table with columns EmployeeId, FirstName, LastName and Gender
+b) EmployeeContactDetails table with columns EmployeeId, Email, Mobile and  Landline
+
+Step 12: Override OnModelCreating() method to tell entity framework to generate 2 tables(Employees & EmployeeContactDetails) for the Employee entity. 
+OnModelCreating() method is a virtual method present in DbContext class. 
+So, modify EmployeeDBContext class in EmployeeDBContext.cs file as shown below.
+public class EmployeeDBContext : DbContext
+{
+    public DbSet<Employee> Employees { get; set; }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Employee>()
+        // Specify properties to map to Employees table
+        .Map(map =>
+        {
+            map.Properties(p => new
+            {
+                p.EmployeeId,
+                p.FirstName,
+                p.LastName,
+                p.Gender
+            });
+
+            map.ToTable("Employees");
+        })
+        // Specify properties to map to EmployeeContactDetails table
+        .Map(map =>
+        {
+            map.Properties(p => new
+            {
+                p.EmployeeId,
+                p.Email,
+                p.Mobile,
+                p.Landline
+            });
+
+            map.ToTable("EmployeeContactDetails");
+        });
+
+        base.OnModelCreating(modelBuilder);
+    }
+}
+
+Step 13: Delete the Sample database and run the web application.
+
+Step 14: Notice that now we have 2 tables generated by entity framework as expected.
+Entity splitting in entity framework with code first approach
+
+Step 15: Execute the following SQL script to populate the tables with test data.
+Insert into Employees values ('Mark', 'Hastings', 'Male')
+Insert into Employees values ('Steve', 'Pound', 'Male')
+Insert into Employees values ('Ben', 'Hoskins', 'Male')
+Insert into Employees values ('Philip', 'Hastings', 'Male')
+
+Insert into Employees values ('Mary', 'Lambeth', 'Female')
+
+Insert into EmployeeContactDetails values
+(1, 'Mark@pragimtech.com', '111111111', '111111111')
+Insert into EmployeeContactDetails values
+(2, 'Steve@pragimtech.com', '2222222222', '2222222222')
+Insert into EmployeeContactDetails values
+(3, 'Ben@pragimtech.com', '3333333333', '3333333333')
+Insert into EmployeeContactDetails values
+(4, 'Philip@pragimtech.com', '44444444444', '44444444444')
+Insert into EmployeeContactDetails values
+
+(5, 'Mary@pragimtech.com', '5555555555', '5555555555')
+
+Step 16: At this point run the application. Insert, update and delete an Employee, and notice that both the tables (Employees and EmployeeContactDetails) are updated as expected. 
