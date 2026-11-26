@@ -1,0 +1,18 @@
+﻿Insert into Courses values ('C#')
+Insert into Courses values ('ASP.NET')
+Insert into Courses values ('SQL Server')
+Insert into Courses values ('WCF')
+GO
+
+-- Insert into Students Table
+Insert into Students values ('Mike')
+Insert into Students values ('John')
+GO
+
+-- Insert into StudentCourses Table
+Insert into StudentCourses values (1, 1)
+Insert into StudentCourses values (1, 2)
+Insert into StudentCourses values (2, 1)
+Insert into StudentCourses values (2, 2)
+Insert into StudentCourses values (2, 3)
+GO

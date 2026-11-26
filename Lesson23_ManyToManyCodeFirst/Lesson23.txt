@@ -1,0 +1,174 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-23-many-to-many-relationship-in.html
+
+ Part 23 - Many to many relationship in entity framework code first
+Suggested Videos
+Part 20 - Table Per Type (TPT) inheritance in entity framework
+Part 21 - Table Per Type (TPT) inheritance in entity framework code first
+Part 22 - Many to many relationship in entity framework
+
+
+
+In this video we will discuss many-to-many relationship in entity framework with code first approach. 
+This is continuation to Part 22, where we discussed Many to many relationship with database first approach. 
+Please watch Part 22 before proceeding.
+
+
+
+Based on Course & Student classes, 
+entity framework should generate the required database tables with many-to-many relationship
+Many to many relationship entity framework code first
+
+Step 1: Create a new empty asp.net web application project. 
+Name it Demo. Install entity framework if it's not already installed.
+
+Step 2: Add a class file to the project. Name it Course.cs. Copy and paste the following code.
+using System.Collections.Generic;
+namespace Demo
+{
+    public class Course
+    {
+        public int CourseID { get; set; }
+        public string CourseName { get; set; }
+        public IList<Student> Students { get; set; }
+    }
+}
+
+Step 3: Add a class file to the project. Name it Student.cs. Copy and paste the following code.
+using System.Collections.Generic;
+namespace Demo
+{
+    public class Student
+    {
+        public int StudentID { get; set; }
+        public string StudentName { get; set; }
+        public IList<Course> Courses { get; set; }
+    }
+}
+
+Step 4: Add a class file to the project. Name it EmployeeDBContext.cs. Copy and paste the following code.
+using System.Data.Entity;
+namespace Demo
+{
+    public class EmployeeDBContext : DbContext
+    {
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Student> Students { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Student>()
+            .HasMany(t => t.Courses)
+            .WithMany(t => t.Students)
+            .Map(m =>
+            {
+                m.ToTable("StudentCourses");
+                m.MapLeftKey("StudentID");
+                m.MapRightKey("CourseID");
+            });
+
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}
+
+Step 5: Add the database connection string in web.config file.
+<connectionStrings>
+  <add name="EmployeeDBContext"
+            connectionString="server=.; database=Sample; integrated security=SSPI;"
+            providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+Step 6: Add a webform to the project. Copy and paste the following HTML.
+<div style="font-family: Arial">
+    <asp:GridView ID="GridView1" runat="server">
+    </asp:GridView>
+    <br />
+    <asp:Button ID="Button1" runat="server" OnClick="Button1_Click"
+        Text="Assign WCF Course to Mike"/>
+    <br />
+    <br />
+    <asp:Button ID="Button2" runat="server" OnClick="Button2_Click"
+        Text="Remove John from SQL Server Course"/>
+</div>
+
+Step 7: Copy and paste the following code in the code-behind file.
+using System;
+using System.Linq;
+
+namespace Demo
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+            GridView1.DataSource = (from student in employeeDBContext.Students
+                                    from c in student.Courses
+                                    select new
+                                    {
+                                        StudentName = student.StudentName,
+                                        CourseName = c.CourseName
+                                    }).ToList();
+
+            GridView1.DataBind();
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+            Course WCFCourse = employeeDBContext.Courses
+                .FirstOrDefault(x => x.CourseID == 4);
+
+            employeeDBContext.Students.Include("Courses")
+                .FirstOrDefault(x => x.StudentID == 1).Courses.Add(WCFCourse);
+            employeeDBContext.SaveChanges();
+        }
+
+        protected void Button2_Click(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+            Course SQLServerCourse = employeeDBContext.Courses
+                .FirstOrDefault(x => x.CourseID == 3);
+
+            employeeDBContext.Students.Include("Courses")
+                .FirstOrDefault(x => x.StudentID == 2).Courses.Remove(SQLServerCourse);
+            employeeDBContext.SaveChanges();
+        }
+    }
+}
+
+Step 8: If you already have Sample database in SQL Server. 
+Delete it from SQL Server Management Studio.
+
+Step 9: Run the application. 
+Sample database and the required tables (Courses, Students & StudentCourses) must be created at this point. 
+
+
+Step 10: Insert test data using the following SQL script
+-- Insert into Courses Table
+Insert into Courses values ('C#')
+Insert into Courses values ('ASP.NET')
+Insert into Courses values ('SQL Server')
+Insert into Courses values ('WCF')
+GO
+
+-- Insert into Students Table
+Insert into Students values ('Mike')
+Insert into Students values ('John')
+GO
+
+-- Insert into StudentCourses Table
+Insert into StudentCourses values (1, 1)
+Insert into StudentCourses values (1, 2)
+Insert into StudentCourses values (2, 1)
+Insert into StudentCourses values (2, 2)
+Insert into StudentCourses values (2, 3)
+GO
+
+Step 11: Reload the webform. Notice that the data is displayed as expected. 
+Now, click on the following buttons, and notice that StudentCourses table is updated as expected.
+a) Assign WCF Course to Mike
+b) Remove John from SQL Server Course
