@@ -1,0 +1,21 @@
+﻿Insert into Employees values ('Mark', 'Hastings', 'Male')
+Insert into Employees values ('Steve', 'Pound', 'Male')
+Insert into Employees values ('Ben', 'Hoskins', 'Male')
+Insert into Employees values ('Philip', 'Hastings', 'Male')
+Insert into Employees values ('Mary', 'Lambeth', 'Female')
+Insert into Employees values ('Valarie', 'Vikings', 'Female')
+Insert into Employees values ('John', 'Stanmore', 'Male')
+GO
+
+-- PermanentEmployees Table Insert
+Insert into PermanentEmployees values (1, 60000)
+Insert into PermanentEmployees values (3, 45000)
+Insert into PermanentEmployees values (4, 30000)
+Insert into PermanentEmployees values (7, 80000)
+GO
+
+-- ContractEmployees Table Insert
+Insert into ContractEmployees values (2, 50, 160)
+Insert into ContractEmployees values (5, 40, 120)
+Insert into ContractEmployees values (6, 30, 140)
+GO
