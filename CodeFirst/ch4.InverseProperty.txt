@@ -1,0 +1,118 @@
+InverseProperty
+Between Lodging.cs and Person.cs
+
+Specifying Unconventionally Named Foreign Keys(P68)
+D:\Study\EFStudyNotes\CodeFirst\chapter4\Chapter4\BAGA_DataAnnotations\Model\InternetSpecial.cs
+Customized Foreign Key
+    [ForeignKey("Accommodation")]
+    public int AccommodationId { get; set; }
+    public Lodging Accommodation { get; set; }
+
+(P67) However, if the destination is not in memory, this would require you to first execute a
+query on the database to retrieve that destination so that you can set the property. There
+are times when you may not have the object in memory, but you do have access to that
+object’s key value. With a foreign key property, you can simply use the key value without
+depending on having that instance in memory:
+
+
+
+D:\Study\EFStudyNotes\CodeFirst\chapter4\Chapter4\BAGA_DataAnnotations\Model\Activity.cs
+    [Required, MaxLength(50)]
+    public string Name { get; set; }
+
+
+Working with Inverse Navigation Properties (P71)
+you may run into a scenario where there are multiple
+relationships between entities. In these cases, Code First won’t be able to work out
+which navigation properties match up. You will need to provide some additional
+configuration.
+
+D:\Study\EFStudyNotes\CodeFirst\chapter4\Chapter4\BAGA_DataAnnotations\Model\Lodging.cs
+    [InverseProperty("PrimaryContactFor")]
+    public Person PrimaryContact { get; set; }	//Will generate foreign key
+    [InverseProperty("SecondaryContactFor")]
+    public Person SecondaryContact { get; set; }	//Will generate foreign key
+
+D:\Study\EFStudyNotes\CodeFirst\chapter4\Chapter4\BAGA_DataAnnotations\Model\Person.cs
+    public List<Lodging> PrimaryContactFor { get; set; }
+    public List<Lodging> SecondaryContactFor { get; set; }
+
+
+D:\Study\EFStudyNotes\CodeFirst\chapter4\Chapter4\BAGA_DataAnnotations\Model\PersonPhoto.cs
+    [Key]
+    [ForeignKey("PhotoOf")]
+    public int PersonId { get; set; }
+
+
+
+
+
+D:\Study\EFStudyNotes\CodeFirst\chapter4\Chapter4\BAGA_DataAnnotations\BreakAwayConsole\Program.cs
+var person = context.People.Include("Photo").FirstOrDefault();
+
+
+        context.Destinations.Add(destination);
+        context.SaveChanges();
+        destinationId = destination.DestinationId;
+
+
+
+
+Working with Cascade Delete------------------------------
+
+      using (var context = new BreakAwayContext())
+      {
+
+var destination = context.Destinations
+.Include("Lodgings")
+.Single(d => d.DestinationId == destinationId);
+
+        var destination = context.Destinations
+          .Single(d => d.DestinationId == destinationId);
+
+        context.Destinations.Remove(destination);
+        context.SaveChanges();
+      }
+---------------------------------------------------------------
+One to one relationship
+
+  public class PersonPhoto
+  {
+    [Key]
+    [ForeignKey("PhotoOf")]
+    public int PersonId { get; set; }
+    public byte[] Photo { get; set; }
+    public string Caption { get; set; }
+
+    public Person PhotoOf { get; set; }
+  }
+
+
+
+Person:
+    [Required]
+    public PersonPhoto Photo { get; set; }
+
+
+
+
+---------------------------------------------------------------
+
+
+
+
+    public DbSet<Destination> Destinations { get; set; }
+    public DbSet<Lodging> Lodgings { get; set; }
+Lodging.cs
+Destination.cs
+InternetSpecial.cs
+
+
+
+
+InternetSpecials is based on Lodging. 
+
+
+
+
+the eager loading (Include)

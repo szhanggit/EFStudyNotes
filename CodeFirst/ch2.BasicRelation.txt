@@ -1,0 +1,33 @@
+    public BreakAwayContext() : base("BreakAway")
+    {
+
+    }
+
+
+D:\Study\EFStudyNotes\CodeFirst\chapter2\Chapter2\BAGA_DataAnnotations\Model\Destination.cs
+    [MaxLength(500)]
+    public string Description { get; set; }
+    [Column(TypeName = "image")]
+    public byte[] Photo { get; set; }
+
+
+Destinations is the basic table.
+public List<Lodging> Lodgings { get; set; }
+
+Lodgings is based on Destinations
+public Destination Destination { get; set; }	//It will generate foreign key.
+
+
+
+
+
+[Table("Species")]
+class AnimalType
+{
+    public int Id { get; set; }
+   [Required]
+   public string TypeName { get; set; }
+}
+
+CreateDatabaseIfNotExists
+DropCreateDatabaseIfModelChanges

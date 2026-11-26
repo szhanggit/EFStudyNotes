@@ -1,0 +1,37 @@
+D:\Study\EFStudyNotes\CodeFirst\chapter6\Chapter6\BAGA_DataAnnotations\Model\PersonPhoto.cs
+  [Table("People")]
+  public class PersonPhoto
+  {
+    [Key]
+    [ForeignKey("PhotoOf")]
+    public int PersonId { get; set; }
+    [Column(TypeName = "image")]
+    public byte[] Photo { get; set; }
+    public string Caption { get; set; }
+
+    public Person PhotoOf { get; set; }
+  }
+
+
+D:\Study\EFStudyNotes\CodeFirst\chapter6\Chapter6\BAGA_DataAnnotations\DataAccess\BreakAwayContext.cs
+    public BreakAwayContext()
+    { }
+
+    public BreakAwayContext(string databaseName)
+      : base(databaseName)
+    { }
+
+    public BreakAwayContext(DbConnection connection)
+      : base(connection, contextOwnsConnection: false)
+    { }
+
+D:\Study\EFStudyNotes\CodeFirst\chapter6\Chapter6\BAGA_DataAnnotations\DataAccess\DropCreateBreakAwayWithSeedData.cs
+context.Database.ExecuteSqlCommand("CREATE INDEX IX_Lodgings_Name ON Lodgings (Name)");
+
+
+
+
+Constructor defining which connection string should be loaded from App.config (P133)
+public BreakAwayContext()
+:base("name=BreakAwayContext")
+{ }

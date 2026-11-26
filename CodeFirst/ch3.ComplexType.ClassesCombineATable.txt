@@ -1,0 +1,45 @@
+D:\Study\EFStudyNotes\CodeFirst\chapter3\Chapter3\BAGA_DataAnnotations\Model\Trip.cs
+    [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]	//Explictly set primary key.
+    public Guid Identifier { get; set; }
+
+    [Timestamp]
+    public byte[] RowVersion { get; set; }		//be treated by EF as concurrency token.
+
+  [ComplexType]
+  public class PersonalInfo
+  {
+    public Measurement Weight { get; set; }
+    public Measurement Height { get; set; }
+    public string DietryRestrictions { get; set; }
+  }
+(P53)	Complex
+types are also known as value types and can be used to add additional properties to
+another class. What differentiates complex types from entity types is that a complex
+type does not have its own key. It is dependent on its “host” type for change tracking
+and persistence.
+
+    [ConcurrencyCheck]
+    public int SocialSecurityNumber { get; set; }	//Get the row version info back. (P48)
+
+
+public DbSet<Person> People { get; set; }
+People Table:	comes from Person.cs + Address.cs + PersonalInfo.cs + Measurement.cs
+Person.cs
+Address.cs		ComplexType
+Measurement.cs
+PersonalInfo.cs	ComplexType
+
+D:\Study\EFStudyNotes\CodeFirst\chapter3\Chapter3\BAGA_DataAnnotations\Model\Person.cs
+public PersonalInfo Info { get; set; }  It is complex type, so will not generate foreign key.
+
+
+D:\Study\EFStudyNotes\CodeFirst\chapter4\Chapter4\BAGA_DataAnnotations\Model\Person.cs
+    public Person()
+    {
+      Address = new Address();
+      Info = new PersonalInfo
+      {
+        Weight = new Measurement(),
+        Height = new Measurement()
+      };
+    }

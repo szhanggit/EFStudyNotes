@@ -1,0 +1,51 @@
+D:\Study\EFStudyNotes\CodeFirst\chapter5\Chapter5\BAGA_DataAnnotations\Model\Address.cs
+    [Column("City")]
+    public string City { get; set; }
+
+D:\Study\EFStudyNotes\CodeFirst\chapter5\Chapter5\BAGA_DataAnnotations\Model\Destination.cs
+[Table("Locations", Schema = "baga")]
+[Required, Column("LocationName")]
+
+    [NotMapped]
+    public string TodayForecast
+    {
+      get { return _todayForecast; }
+      set { _todayForecast = value; }
+    }
+
+D:\Study\EFStudyNotes\CodeFirst\chapter5\Chapter5\BAGA_DataAnnotations\Model\Lodging.cs
+    [InverseProperty("PrimaryContactFor")]
+    [ForeignKey("PrimaryContactId")]
+    public Person PrimaryContact { get; set; }
+    public Nullable<int> SecondaryContactId { get; set; }
+    [InverseProperty("SecondaryContactFor")]
+    [ForeignKey("SecondaryContactId")]
+    public Person SecondaryContact { get; set; }
+
+
+
+[Table("PersonPhotos")]
+public class PersonPhoto
+
+[Column("LocationID")]
+public int DestinationId { get; set; }
+[Required, Column("LocationName")]
+public string Name { get; set; }
+
+
+Combine two classes into a single database table (P97)
+
+[Table("People")]
+public class Person
+[Table("People")]
+public class PersonPhoto
+
+
+As far as I see, there are three ways to combine several classes into one single table.
+1. complex type.
+2. [Table("People")]
+3. Class inheritance.
+If you want to create different tables for inheritance, use [Table("Resorts")] as decoration on class.(P113)
+
+
+
