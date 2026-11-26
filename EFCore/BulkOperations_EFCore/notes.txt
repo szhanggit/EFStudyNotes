@@ -1,0 +1,7 @@
+https://www.c-sharpcorner.com/article/bulk-operations-in-entity-framework-core/
+
+Add-Migration BulkOperations_EFCore.Models.AppDbContext
+update-database
+
+
+(Remove-Migration)
