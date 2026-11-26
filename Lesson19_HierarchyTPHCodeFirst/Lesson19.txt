@@ -1,0 +1,226 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-19-table-per-hierarchy-tph_5.html
+
+ Part 19 - Table Per Hierarchy (TPH) inheritance in entity framework with code first
+Suggested Videos
+Part 16 - Self referencing association in entity framework
+Part 17 - Self referencing association in entity framework with code first
+Part 18 - Table Per Hierarchy (TPH) inheritance in entity framework
+
+
+
+In this video, we will discuss implementing Table Per Hierarchy (TPH) inheritance in entity framework with code first approach. This is continuation to Part 18, where we discussed implementing Table Per Hierarchy inheritance with database first approach. Please watch Part 18 before proceeding.
+
+
+
+In TPH inheritance one database table is used to store data for all of the entity types in the inheritance hierarchy. 
+Table Per Hierarchy inheritance code first
+
+Step 1: Create a new empty asp.net web application project. Name it Demo. Install entity framework if it's not already installed.
+
+Step 2: Add a class file to the project. Name it Employee.cs. Copy and paste the following code.
+
+using System.ComponentModel.DataAnnotations.Schema;
+namespace Demo
+{
+    public abstract class Employee
+    {
+        [Column(Order = 1)]
+        public int ID { get; set; }
+        [Column(Order = 2)]
+        public string FirstName { get; set; }
+        [Column(Order = 3)]
+        public string LastName { get; set; }
+        [Column(Order = 4)]
+        public string Gender { get; set; }
+    }
+}
+
+Step 3: Add a class file to the project. Name it PermanentEmployee.cs. Copy and paste the following code.
+using System.ComponentModel.DataAnnotations.Schema;
+namespace Demo
+{
+    public class PermanentEmployee : Employee
+    {
+        [Column(Order = 5)]
+        public int AnnualSalary { get; set; }
+    }
+}
+
+Step 4: Add a class file to the project. Name it ContractEmployee.cs. Copy and paste the following code.
+using System.ComponentModel.DataAnnotations.Schema;
+namespace Demo
+{
+    public class ContractEmployee : Employee
+    {
+        [Column(Order = 6)]
+        public int HoursWorked { get; set; }
+        [Column(Order = 7)]
+        public int HourlyPay { get; set; }
+    }
+}
+
+Step 5: Add a class file to the project. Name it EmployeeDBContext.cs. Copy and paste the following code.
+using System.Data.Entity;
+namespace Demo
+{
+    public class EmployeeDBContext : DbContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+    }
+}
+
+Step 6: Add the database connection string in web.config file.
+<connectionStrings>
+  <add name="EmployeeDBContext"
+        connectionString="server=.; database=Sample; integrated security=SSPI;"
+        providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+Step 7: Add a webform to the project. Copy and paste the following HTML.
+<div style="font-family: Arial">
+    <asp:RadioButtonList ID="RadioButtonList1" runat="server" AutoPostBack="True"
+        onselectedindexchanged="RadioButtonList1_SelectedIndexChanged">
+        <asp:ListItem Text="Load all Employees" Value="All"></asp:ListItem>
+        <asp:ListItem Text="Load Permanent Employees" Value="Permanent"></asp:ListItem>
+        <asp:ListItem Text="Load Contract Employees" Value="Contract"></asp:ListItem>
+    </asp:RadioButtonList>
+    <asp:GridView ID="GridView1" runat="server">
+    </asp:GridView>
+    <br />
+    <asp:Button ID="btnAddPermanentEmployee" runat="server"
+        Text="Add Permanent Employee" onclick="btnAddPermanentEmployee_Click" />
+    <br />
+    <br />
+    <asp:Button ID="btnAddContractEmployee" runat="server"
+        Text="Add Contract Employee" onclick="btnAddContractEmployee_Click" />
+</div>
+
+Step 8: Copy and paste the following code in the code-behind file.
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+
+namespace Demo
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void RadioButtonList1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+            switch (RadioButtonList1.SelectedValue)
+            {
+                case "Permanent":
+                    GridView1.DataSource = employeeDBContext.Employees.OfType<PermanentEmployee>().ToList();
+                    GridView1.DataBind();
+                    break;
+
+                case "Contract":
+                    GridView1.DataSource = employeeDBContext.Employees.OfType<ContractEmployee>().ToList();
+                    GridView1.DataBind();
+                    break;
+
+                default:
+                    GridView1.DataSource = ConvertEmployeesForDisplay(employeeDBContext.Employees.ToList());
+                    GridView1.DataBind();
+                    break;
+            }
+        }
+
+        private DataTable ConvertEmployeesForDisplay(List<Employee> employees)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ID");
+            dt.Columns.Add("FirstName");
+            dt.Columns.Add("LastName");
+            dt.Columns.Add("Gender");
+            dt.Columns.Add("AnuualSalary");
+            dt.Columns.Add("HourlyPay");
+            dt.Columns.Add("HoursWorked");
+            dt.Columns.Add("Type");
+
+            foreach (Employee employee in employees)
+            {
+                DataRow dr = dt.NewRow();
+                dr["ID"] = employee.ID;
+                dr["FirstName"] = employee.FirstName;
+                dr["LastName"] = employee.LastName;
+                dr["Gender"] = employee.Gender;
+
+                if (employee is PermanentEmployee)
+                {
+                    dr["AnuualSalary"] = ((PermanentEmployee)employee).AnnualSalary;
+                    dr["Type"] = "Permanent";
+                }
+                else
+                {
+                    dr["HourlyPay"] = ((ContractEmployee)employee).HourlyPay;
+                    dr["HoursWorked"] = ((ContractEmployee)employee).HoursWorked;
+                    dr["Type"] = "Contract";
+                }
+                dt.Rows.Add(dr);
+            }
+
+            return dt;
+        }
+
+        protected void btnAddPermanentEmployee_Click(object sender, EventArgs e)
+        {
+            PermanentEmployee permanentEmployee = new PermanentEmployee
+            {
+                FirstName = "Mike",
+                LastName = "Brown",
+                Gender = "Male",
+                AnnualSalary = 70000,
+            };
+
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+            employeeDBContext.Employees.Add(permanentEmployee);
+            employeeDBContext.SaveChanges();
+        }
+
+        protected void btnAddContractEmployee_Click(object sender, EventArgs e)
+        {
+            ContractEmployee contractEmployee = new ContractEmployee
+            {
+                FirstName = "Stacy",
+                LastName = "Josh",
+                Gender = "Female",
+                HourlyPay = 50,
+                HoursWorked = 120
+            };
+
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+            employeeDBContext.Employees.Add(contractEmployee);
+            employeeDBContext.SaveChanges();
+        }
+    }
+}
+
+Step 7: If you already have Sample database in SQL Server. Delete it from SQL Server Management Studio.
+
+Step 8: Run the application. Sample database and Employees table must be created at this point. 
+
+
+Step 9: Insert test data using the following SQL script
+Insert into Employees values
+('Mark', 'Hastings', 'Male', 60000, NULL, NULL, 'PermanentEmployee')
+Insert into Employees values
+('Steve', 'Pound', 'Male', NULL, 50, 160, 'ContractEmployee')
+Insert into Employees values
+('Ben', 'Hoskins', 'Male', NULL, 40, 120, 'ContractEmployee')
+Insert into Employees values
+('Philip', 'Hastings', 'Male', 45000, NULL, NULL, 'PermanentEmployee')
+Insert into Employees values
+('Mary', 'Lambeth', 'Female', 30000, NULL, NULL, 'PermanentEmployee')
+Insert into Employees values
+('Valarie', 'Vikings', 'Female', NULL, 30, 140, 'ContractEmployee')
+Insert into Employees values
+('John', 'Stanmore', 'Male', 80000, NULL, NULL, 'PermanentEmployee')
+
+Step 10: Reload the webform. Open SQL Profiler. Select the different radio buttons to load contract, permanent & all employees and notice the queries generated by the entity framework. Also click on the following buttons.
+a) Add Permanent Employee
+b) Add Contract Employee
+
+Notice that the Discriminator column is populated automatically based on the type of Employee being inserted.
