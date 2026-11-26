@@ -1,0 +1,107 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-17-self-referencing-association-in_3.html
+
+ Part 17 - Self referencing association in entity framework with code first
+Suggested Videos
+Part 14 - Conditional Mapping in entity framework
+Part 15 - Conditional Mapping in entity framework with code first
+Part 16 - Self referencing association in entity framework
+
+
+
+In this video, we will discuss self referencing association in entity framework with code first approach. This is continuation to Part 16, where we discussed self-referencing association with database first approach. Please watch Part 16 before proceeding.
+
+
+
+Step 1: Create a new empty asp.net web application project. Name it Demo. Install entity framework if it's not already installed.
+
+Step 2: Add a class file to the project. Name it Employee.cs. Copy and paste the following code.
+namespace Demo
+{
+    public class Employee
+    {
+        // Scalar properties
+        public int EmployeeID { get; set; }
+        public string EmployeeName { get; set; }
+        public int? ManagerID { get; set; }
+
+        // Navigation property
+        public Employee Manager { get; set; }
+    }
+}
+
+Step 3: Add a class file to the project. Name it EmployeeDBContext.cs. Copy and paste the following code.
+using System.Data.Entity;
+namespace Demo
+{
+    public class EmployeeDBContext : DbContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>()
+                .HasOptional(e => e.Manager)
+                .WithMany()
+                .HasForeignKey(m => m.ManagerID);
+
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}
+
+Step 4: Add the database connection string in web.config file.
+<connectionStrings>
+  <add name="EmployeeDBContext"
+            connectionString="server=.; database=Sample; integrated security=SSPI;"
+            providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+Step 5: Add a webform to the project. Drag and drop a GridView control. 
+
+Step 6: Copy and paste the following code in the code-behind file.
+using System;
+using System.Linq;
+namespace Demo
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+            GridView1.DataSource = employeeDBContext.Employees.Select(emp => new
+            {
+                EmployeeName = emp.EmployeeName,
+                ManagerName = emp.Manager == null ?
+                    "Super Boss" : emp.Manager.EmployeeName
+            }).ToList();
+            GridView1.DataBind();
+        }
+    }
+}
+
+Step 7: If you already have Sample database in SQL Server. Delete it from SQL Server Management Studio.
+
+Step 8: Run the application. Sample database and Employees table must be created at this point. Notice that EmployeeID is marked as primary key and ManagerID is marked as foreign key.
+Self referencing association in entity framework with code first
+
+Step 9: Insert test data using the following SQL script
+Insert into Employees values ('John', NULL)
+Insert into Employees values ('Mark', NULL)
+Insert into Employees values ('Steve', NULL)
+Insert into Employees values ('Tom', NULL)
+Insert into Employees values ('Lara', NULL)
+Insert into Employees values ('Simon', NULL)
+Insert into Employees values ('David', NULL)
+Insert into Employees values ('Ben', NULL)
+Insert into Employees values ('Stacy', NULL)
+Insert into Employees values ('Sam', NULL)
+GO
+
+Update Employees Set ManagerID = 8 Where EmployeeName IN ('Mark', 'Steve', 'Lara')
+Update Employees Set ManagerID = 2 Where EmployeeName IN ('Stacy', 'Simon')
+Update Employees Set ManagerID = 3 Where EmployeeName IN ('Tom')
+Update Employees Set ManagerID = 5 Where EmployeeName IN ('John', 'Sam')
+Update Employees Set ManagerID = 4 Where EmployeeName IN ('David')
+GO
+
+Step 10: Reload web form and notice that the employee name and their respective manager name is is displayed as expected.
