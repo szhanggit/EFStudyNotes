@@ -1,0 +1,148 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-7-using-stored-procedures-with.html
+
+ Part 7 - Using stored procedures with entity framework
+Suggested Videos
+Part 4 - Customizing table & column names
+Part 5 - How to handle model changes in entity framework
+Part 6 - How to seed database with test data using entity framework
+
+
+
+In this video we will discuss using our own custom stored procedures to perform Insert, 
+Update and Delete operations using entity framework. 
+We will be using the following Employees table for this demo.
+
+
+
+Using stored procedures with entity frameowrk
+
+Step 1: Use the following SQL Script to create and populate Employee table.
+Create table Employees
+(
+     ID int primary key identity,
+     Name nvarchar(50),
+     Gender nvarchar(50),
+     Salary int
+)
+
+Insert into Employees values ('Mark', 'Male', 60000)
+Insert into Employees values ('Steve', 'Male', 45000)
+Insert into Employees values ('Ben', 'Male', 70000)
+Insert into Employees values ('Philip', 'Male', 45000)
+Insert into Employees values ('Mary', 'Female', 30000)
+Insert into Employees values ('Valarie', 'Female', 35000)
+Insert into Employees values ('John', 'Male', 80000)
+
+Step 2: Create Insert, Update and Delete stored procedures
+Create procedure InsertEmployee
+@Name nvarchar(50),
+@Gender nvarchar(50),
+@Salary int
+as
+Begin
+     Insert into Employees values (@Name, @Gender, @Salary)   
+End
+Go
+
+Create procedure UpdateEmployee
+@ID int,
+@Name nvarchar(50),
+@Gender nvarchar(50),
+@Salary int
+as
+Begin
+     Update Employees Set Name = @Name, Gender = @Gender,
+     Salary = @Salary
+     where ID = @ID
+End
+Go
+
+Create procedure DeleteEmployee
+@ID int
+as
+Begin
+     Delete from Employees where ID = @ID
+End
+Go
+
+Step 3: Create a new empty asp.net web application
+
+Step 4: Add a new ADO.NET Entity Data Model.
+a) On Choose Model Contents screen select "Generate from database" option and click Next
+Using insert update delete stored procedures with entity frameowrk
+
+b) On "Choose Your Data Connections" screen give a meaningful name for the connection string that will be stored in the web.config file. 
+I have named it EmployeeDBContext. Click Next.
+executing stored procedures in entity framework
+
+c) On "Choose Your Database Objects" screen, 
+select Employees Table and the 3 stored procedures (InsertEmployee, UpdateEmployee, DeleteEmployee). 
+Provide a meaningful name for the Model namespace. I have named it EmployeeModel. CLick Finish.
+executing insert update delete stored procedures with entity frameowrk
+
+At this point on the ADO.NET Entity Model designer surface, 
+we should be able to see the Employee entity but not the stored procedures. 
+
+To view the stored procedures, 
+1. Right click on entity model designer surface and select "Model Broswer" from the context menu.
+
+2. Expand Stored Procedures folder
+model browser in entity framework
+
+Step 5: Add a web form to the project. Drag and drop the following 3 controls and build the solution.
+1. GridView
+2. DetailsView
+3. EntityDataSource
+
+Step 6: Configure EntityDataSource control
+
+a). Right click on EntityDataSource control and select "Show Smart Tag" option
+
+b) Click on Configure Data Source link
+
+c) Select EmployeeDBContext from the Named Connection dropdownlist and click Next
+
+d) Select the options on "Configure Data Selection" screen as shown in the image below and click Finish
+configure entitydatasource
+
+Step 7: Configure GridView control
+
+a). Right click on GridView control and select "Show Smart Tag" option
+
+b) Click on "Auto Format" link and select "Colourful" scheme
+
+
+c) Select "EntityDataSource1" from "Choose Data Source" dropdownlist
+
+d) Select Enable Editing and Enable Deleting checkboxes
+configure gridview
+
+Step 8: Configure DetailsView control
+a) Right click on DetailsView control and select "Show Smart Tag" option
+b) Click on "Auto Format" link and select "Colourful" scheme
+c) Select "EntityDataSource1" from "Choose Data Source" dropdownlist
+d) Select Enable Inserting checkbox
+e) Set DeafultMode=Insert. Use properties window to set this.
+f) Set InsertVisible="false" for the ID BoundField. You can do this directly in the HTML Source.
+g) Generate ItemInserted event handler method for DetailsView control. Copy and paste the following code.
+protected void DetailsView1_ItemInserted (object sender, DetailsViewInsertedEventArgs e)
+{
+    GridView1.DataBind();
+}
+
+At this point if you run the application, 
+and if you insert, update and delete employees, 
+by default entity framework will use the sql it auto-generates and not our custom stored procedures.
+
+To tell the entity framework to use the stored procedures, we have to map them to the Employee entity. 
+
+Here are the steps.
+1. Right click on "Employee" entity on "EmployeeModel.edmx" and select "Stored Procedure Mapping" option from the context menu.
+
+2. In the "Mapping Details" windows specify the Insert, Update and Delete stored procedures that you want to use with "Employee" entity
+stored procedure mapping in entity framework
+
+At this point, 
+1. Run SQL Prrofiler
+2. Run the application
+3. Insert, Update and Delete Employee, and notice that the respective stored procedures are being called now. 

@@ -1,0 +1,48 @@
+﻿Create table SPEmployees
+(
+     ID int primary key identity,
+     Name nvarchar(50),
+     Gender nvarchar(50),
+     Salary int
+)
+
+Insert into SPEmployees values ('Mark', 'Male', 60000)
+Insert into SPEmployees values ('Steve', 'Male', 45000)
+Insert into SPEmployees values ('Ben', 'Male', 70000)
+Insert into SPEmployees values ('Philip', 'Male', 45000)
+Insert into SPEmployees values ('Mary', 'Female', 30000)
+Insert into SPEmployees values ('Valarie', 'Female', 35000)
+Insert into SPEmployees values ('John', 'Male', 80000)
+
+
+
+Create procedure InsertSPEmployee
+@Name nvarchar(50),
+@Gender nvarchar(50),
+@Salary int
+as
+Begin
+     Insert into SPEmployees values (@Name, @Gender, @Salary)   
+End
+Go
+
+Create procedure UpdateSPEmployee
+@ID int,
+@Name nvarchar(50),
+@Gender nvarchar(50),
+@Salary int
+as
+Begin
+     Update SPEmployees Set [Name] = @Name, Gender = @Gender,
+     Salary = @Salary
+     where ID = @ID
+End
+Go
+
+Create procedure DeleteSPEmployee
+@ID int
+as
+Begin
+     Delete from SPEmployees where ID = @ID
+End
+Go
