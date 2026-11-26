@@ -1,0 +1,189 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-25-entity-for-bridgetable-in-many_12.html
+
+ Part 25 - Entity for BridgeTable in many to many relationship code first
+Suggested Videos
+Part 22 - Many to many relationship in entity framework
+Part 23 - Many to many relationship in entity framework code first
+Part 24 - Entity for BridgeTable in many to many relationship
+
+
+
+In this video we will discuss creating an Entity for the bridge table in a many-to-many relationship with code first. 
+This is continuation to Part 24. Please watch Part 24 before proceeding.
+
+
+
+We want the entity framework to create the following tables
+creating an Entity for the bridge table in a many-to-many relationship with code first
+
+1. Courses - CourseID should be the Primary Key
+2. Students - StudentID should be the Primary Key
+3. StudentCourses - Composite primary key consisting of CourseID & StudentID columns. 
+CourseID should also be the foreign key referencing CourseID column in Courses table. 
+StudentID should also be the foreign key referencing StudentID column in Students table.
+
+To achieve this
+Step 1: Create a new empty asp.net web application project. 
+Name it Demo. Install entity framework if it's not already installed.
+
+Step 2: Add a class file to the project. Name it Course.cs. Copy and paste the following code.
+using System.Collections.Generic;
+namespace Demo
+{
+    public class Course
+    {
+        public int CourseID { get; set; }
+        public string CourseName { get; set; }
+        public IList<StudentCourse> StudentCourses { get; set; }
+    }
+}
+
+Step 3: Add a class file to the project. Name it Student.cs. Copy and paste the following code.
+using System.Collections.Generic;
+namespace Demo
+{
+    public class Student
+    {
+        public int StudentID { get; set; }
+        public string StudentName { get; set; }
+        public IList<StudentCourse> StudentCourses { get; set; }
+    }
+}
+
+Step 4: Add a class file to the project. Name it StudentCourse.cs. Copy and paste the following code.
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema; 
+namespace Demo
+{
+    public class StudentCourse
+    {
+        public Course Course { get; set; }
+
+        public Student Student { get; set; }
+
+        [Key, Column(Order = 1)]
+        public int StudentID { get; set; }
+
+        [Key, Column(Order = 2)]
+        public int CourseID { get; set; }
+
+        public DateTime EnrolledDate { get; set; }
+    }
+}
+
+Step 5: Add a class file to the project. Name it EmployeeDBContext.cs. Copy and paste the following code.
+using System.Data.Entity;
+namespace Demo
+{
+    public class EmployeeDBContext : DbContext
+    {
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Student> Students { get; set; }
+        public DbSet<StudentCourse> StudentCourses { get; set; }
+    }
+}
+
+Step 6: Add the database connection string in web.config file.
+<connectionStrings>
+  <add name="EmployeeDBContext"
+            connectionString="server=.; database=Sample; integrated security=SSPI;"
+            providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+Step 7: Add a webform to the project. Copy and paste the following HTML.
+<body>
+    <form id="form1" runat="server">
+    <div style="font-family: Arial">
+    <asp:GridView ID="GridView1" runat="server">
+    </asp:GridView>
+    <br />
+    <asp:Button ID="Button1" runat="server" OnClick="Button1_Click"
+        Text="Assign WCF Course to Mike"/>
+    <br />
+    <br />
+    <asp:Button ID="Button2" runat="server" OnClick="Button2_Click"
+        Text="Remove John from SQL Server Course"/>
+</div>
+
+Step 8: Copy and paste the following code in the code-behind file.
+using System;
+using System.Linq;
+namespace Demo
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+            GridView1.DataSource = (from student in employeeDBContext.Students
+                                    from studentCourse in student.StudentCourses
+                                    select new
+                                    {
+                                        StudentName = student.StudentName,
+                                        CourseName = studentCourse.Course.CourseName,
+                                        EnrolledDate = studentCourse.EnrolledDate
+                                    }).ToList();
+
+            // The above query can also be written as shown below
+            //GridView1.DataSource = (from course in employeeDBContext.Courses
+            //                        from studentCourse in course.StudentCourses
+            //                        select new
+            //                        {
+            //                            StudentName = studentCourse.Student.StudentName,
+            //                            CourseName = course.CourseName,
+            //                            EnrolledDate = studentCourse.EnrolledDate
+            //                        }).ToList();
+
+            GridView1.DataBind();
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+            employeeDBContext.StudentCourses.Add(new StudentCourse
+            { StudentID = 1, CourseID = 4, EnrolledDate = DateTime.Now });
+            employeeDBContext.SaveChanges();
+        }
+
+        protected void Button2_Click(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+            StudentCourse studentCourseToRemove = employeeDBContext.StudentCourses
+                .FirstOrDefault(x => x.StudentID == 2 && x.CourseID == 3);
+            employeeDBContext.StudentCourses.Remove(studentCourseToRemove);
+            employeeDBContext.SaveChanges();
+        }
+    }
+}
+
+Step 9: If you already have Sample database in SQL Server. Delete it from SQL Server Management Studio.
+
+Step 10: Run the application. Sample database and the required tables (Courses, Students & StudentCourses) must be created at this point. 
+
+Step 11: Insert test data using the following SQL script
+-- Insert into Courses Table
+Insert into Courses values ('C#')
+Insert into Courses values ('ASP.NET')
+Insert into Courses values ('SQL Server')
+Insert into Courses values ('WCF')
+GO
+
+-- Insert into Students Table
+Insert into Students values ('Mike')
+Insert into Students values ('John')
+GO
+
+-- Insert into StudentCourses Table
+Insert into StudentCourses values (1, 1, Getdate())
+Insert into StudentCourses values (1, 2, Getdate())
+Insert into StudentCourses values (2, 1, Getdate())
+Insert into StudentCourses values (2, 2, Getdate())
+Insert into StudentCourses values (2, 3, Getdate())
+GO
+
+Step 12: Reload the webform. Notice that the data is displayed as expected. Now, click on the following buttons, and notice that StudentCourses table is updated as expected.
+a) Assign WCF Course to Mike
+b) Remove John from SQL Server Course
+
