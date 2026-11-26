@@ -1,0 +1,68 @@
+https://stackoverflow.com/questions/44194877/how-to-bulk-update-records-in-entity-framework
+
+using (yourDbEntities db = new yourDbEntities())
+{
+    db.Database.ExecuteSqlCommand("UPDATE YourTABLE SET Quantity = {0} WHERE Id = {1}", quantity, id);
+}
+
+yourDbContext.ExecuteStoreCommand("UPDATE YourTABLE SET Quantity = {0} WHERE Id = {1}", quantity, id);
+
+
+
+foreach (var vSelectedDok in doks)
+{
+    //disable detection of changes to improve performance
+    vDal.Configuration.AutoDetectChangesEnabled = false;
+    
+    vDal.Dokumente.Attach(vSelectedDok);
+
+    vDal.Entry(vSelectedDok).Property(x=>x.Status).IsModified=true;
+    vDal.Entry(vSelectedDok).Property(x => x.LastDateChanged).IsModified = true;
+}
+vDal.SaveChanges();
+
+
+
+
+void Main()
+{
+    
+    var dc = this; // context
+    var p = dc.Purchases.Where(x=>x.Description.ToLower()=="bike")
+                        .SetValue(w => w.Description = "Bicycle");
+    p.Dump();
+    dc.SubmitChanges();
+}
+
+
+
+
+
+
+
+
+
+
+using (myDbEntities db = new myDbEntities())
+{
+    try
+    {
+      //disable detection of changes to improve performance
+      db.Configuration.AutoDetectChangesEnabled = false;
+
+      //for all the entities to update...
+      MyObjectEntity entityToUpdate = new MyObjectEntity() {Id=123, Quantity=100};
+      db.MyObjectEntity.Attach(entityToUpdate);
+
+      //then perform the update
+      db.SaveChanges();
+    }
+    finally
+    {
+      //re-enable detection of changes
+      db.Configuration.AutoDetectChangesEnabled = true;
+    }
+}
+
+
+

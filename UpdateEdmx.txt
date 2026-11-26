@@ -1,0 +1,29 @@
+<EntityType Name="BatchTransaction">		173
+
+
+
+
+
+<EntityType Name="BatchTransaction">		11818
+
+
+
+
+<EntitySetMapping Name="BatchTransactions">		15753
+	<EntityTypeMapping TypeName="ERDBModel.BatchTransaction">
+		<MappingFragment StoreEntitySet="BatchTransaction">
+			<ScalarProperty Name="RequestId" ColumnName="RequestId" />
+			<ScalarProperty Name="OrderNumber" ColumnName="OrderNumber" />
+			<ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+			<ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+			<ScalarProperty Name="FailVoucherCount" ColumnName="FailVoucherCount" />
+			<ScalarProperty Name="SuccessVoucherCount" ColumnName="SuccessVoucherCount" />
+			<ScalarProperty Name="TotalVoucherCount" ColumnName="TotalVoucherCount" />
+			<ScalarProperty Name="ExecuteEndTime" ColumnName="ExecuteEndTime" />
+			<ScalarProperty Name="ExecuteStartTime" ColumnName="ExecuteStartTime" />
+			<ScalarProperty Name="Status" ColumnName="Status" />
+			<ScalarProperty Name="BatchNo" ColumnName="BatchNo" />
+			<ScalarProperty Name="Id" ColumnName="Id" />
+		</MappingFragment>
+	</EntityTypeMapping>
+</EntitySetMapping>
