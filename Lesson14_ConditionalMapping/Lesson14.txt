@@ -1,0 +1,75 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-14-conditional-mapping-in-entity_31.html
+
+ Part 14 - Conditional Mapping in entity framework
+Suggested Videos
+Part 11 - Entity splitting in entity framework with code first approach
+Part 12 - Table splitting in entity framework
+Part 13 - Table splitting in entity framework with code first approach
+
+
+
+In this video we will discuss Conditional Mapping feature in entity framework with database first approach. 
+Let us understand what Conditional Mapping can do with an example.
+
+
+
+We will be using the following Employees table in this demo. 
+IsTerminated column determines if an employee is a terminated employee or not.
+Conditional Mapping in entity framework
+
+SQL Query to create Employees table
+Create table Employees
+(
+     EmployeeID int primary key identity,
+     FirstName nvarchar(50),
+     LastName nvarchar(50),
+     Gender nvarchar(50),
+     IsTerminated bit not null
+)
+GO
+
+Insert into Employees values ('Mark', 'Hastings', 'Male', 0)
+Insert into Employees values ('Steve', 'Pound', 'Male', 0)
+Insert into Employees values ('Ben', 'Hoskins', 'Male', 0)
+Insert into Employees values ('Philip', 'Hastings', 'Male', 1)
+Insert into Employees values ('Mary', 'Lambeth', 'Female', 0)
+Insert into Employees values ('Valarie', 'Vikings', 'Female', 0)
+Insert into Employees values ('John', 'Stanmore', 'Male', 1)
+
+If the application that we are developing always need only the employees who are not terminated, 
+then in the query we will have to always include the filter across our entire application. 
+Conditional Mapping can be used to apply such a permanent filter on the entity, 
+so that the generated SQL query always have the WHERE clause.
+
+To use Conditional Mapping, 
+1. Right click on the entity and select "Table Mapping" option from the context menu
+2. Add the condition - When Is Terminated = false
+Conditional Mapping example
+
+At this point, if you build the solution or validate the model, you will get the following error
+Problem in mapping fragments starting at line 46:Condition member 'Employees.IsTerminated' with a condition other than 'IsNull=False' is mapped. 
+Either remove the condition on Employees.IsTerminated or remove it from the mapping
+
+This is because, a table column cannot be mapped more than once. 
+We have used IsTerminated column in conditional mapping, 
+so it cannot be used in property mapping as well. 
+For this reason delete it from Employee entity.
+
+Add a web form to the project. 
+Drag and drop a GridView control. 
+Copy and paste the following code in the code-behind file.
+protected void Page_Load(object sender, EventArgs e)
+{
+    EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+    GridView1.DataSource = employeeDBContext.Employees;
+    GridView1.DataBind();
+}
+
+Open SQL profiler and run the webform. Notice that the select query has a where clause, which will always return employees who are not terminated.
+SELECT
+[Extent1].[EmployeeID] AS [EmployeeID],
+[Extent1].[FirstName] AS [FirstName],
+[Extent1].[LastName] AS [LastName],
+[Extent1].[Gender] AS [Gender]
+FROM [dbo].[Employees] AS [Extent1]
+WHERE [Extent1].[IsTerminated] = 0
