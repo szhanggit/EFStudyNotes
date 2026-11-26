@@ -1,0 +1,97 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-16-self-referencing-association-in_2.html
+
+ Part 16 - Self referencing association in entity framework
+Suggested Videos
+Part 13 - Table splitting in entity framework with code first approach
+Part 14 - Conditional Mapping in entity framework
+Part 15 - Conditional Mapping in entity framework with code first
+
+
+
+In this video, 
+we will discuss self referencing association in entity framework with database first approach. 
+Let us understand self-referencing association with an example.
+
+
+
+We will be using the following Employees table in this demo. 
+This table is a self-referencing table because to get the manager of an employee, 
+we take ManagerId column value and look up in the EmployeeId column of the same table.
+Self referencing association
+
+SQL script to create the table
+Create table Employees
+(
+     EmployeeID int primary key identity,
+     EmployeeName nvarchar(50),
+     ManagerID int foreign key references Employees(EmployeeID)
+)
+GO
+
+Insert into Employees values ('John', NULL)
+Insert into Employees values ('Mark', NULL)
+Insert into Employees values ('Steve', NULL)
+Insert into Employees values ('Tom', NULL)
+Insert into Employees values ('Lara', NULL)
+Insert into Employees values ('Simon', NULL)
+Insert into Employees values ('David', NULL)
+Insert into Employees values ('Ben', NULL)
+Insert into Employees values ('Stacy', NULL)
+Insert into Employees values ('Sam', NULL)
+GO
+
+Update Employees Set ManagerID = 8 Where EmployeeName IN ('Mark', 'Steve', 'Lara')
+Update Employees Set ManagerID = 2 Where EmployeeName IN ('Stacy', 'Simon')
+Update Employees Set ManagerID = 3 Where EmployeeName IN ('Tom')
+Update Employees Set ManagerID = 5 Where EmployeeName IN ('John', 'Sam')
+Update Employees Set ManagerID = 4 Where EmployeeName IN ('David')
+GO
+
+Now if you generate an ADO.NET entity data model based on this Employees table, 
+the following Employee entity is generated. 
+Notice that a self-referencing association and 2 navigation properties (Employees1 & Employee1) are automatically created. 
+Self referencing association in entity framework
+
+Right click on Employees1 navigation property and select properties. 
+In the properties window notice that the Multiplicity is set to Many. 
+So, this navigation property returns employees who are subordinates. 
+Self referencing table in entity framework
+
+Similarly, right click on Employee1 navigation property and select properties. In the properties window notice that the Multiplicity is set to Zero or One. So, this navigation property returns the manager of an employee.
+Self referencing association in entity framework database first
+
+From a developer perspective the default navigation property names that entity framework generates are not meaningful. If you have to write any code based on these navigation properties, it can get even more complicated.
+
+For example, let us say we want to display Employee names and their respective manager names as shown below.
+Self referencing association example
+
+To achieve this we would drag and drop a GridView control on the web form and write the following code in the code-behind file Page_Load event. Notice that, because of the poor naming of the navigation properties the code is hard to read and maintain.
+protected void Page_Load(object sender, EventArgs e)
+{
+    EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+    GridView1.DataSource = employeeDBContext.Employees.Select(emp => new
+    {
+        EmployeeName = emp.EmployeeName,
+        ManagerName = emp.Employee1 == null ? "Super Boss"
+                        : emp.Employee1.EmployeeName
+    }).ToList();
+    GridView1.DataBind();
+}
+
+Now let's give these navigation properties meaningful names. To do this,
+1. Right click on Employees1 navigation property and rename it to Subordinates
+2. Similarly, right click on Employee1 navigation property and rename it to Manager
+Self referencing association in entity framework database first example
+
+Now the code in the code-behind file would change as shown below which is more readable and maintainable.
+protected void Page_Load(object sender, EventArgs e)
+{
+    EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+    GridView1.DataSource = employeeDBContext.Employees.Select(emp => new
+    {
+        EmployeeName = emp.EmployeeName,
+        ManagerName = emp.Manager == null ? "Super Boss"
+                                      : emp.Manager.EmployeeName
+    }).ToList();
+    GridView1.DataBind();
+}

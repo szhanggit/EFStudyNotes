@@ -1,0 +1,26 @@
+﻿Create table SRDEmployees
+(
+     EmployeeID int primary key identity,
+     EmployeeName nvarchar(50),
+     ManagerID int foreign key references SRDEmployees(EmployeeID)
+)
+GO
+
+Insert into SRDEmployees values ('John', NULL)
+Insert into SRDEmployees values ('Mark', NULL)
+Insert into SRDEmployees values ('Steve', NULL)
+Insert into SRDEmployees values ('Tom', NULL)
+Insert into SRDEmployees values ('Lara', NULL)
+Insert into SRDEmployees values ('Simon', NULL)
+Insert into SRDEmployees values ('David', NULL)
+Insert into SRDEmployees values ('Ben', NULL)
+Insert into SRDEmployees values ('Stacy', NULL)
+Insert into SRDEmployees values ('Sam', NULL)
+GO
+
+Update SRDEmployees Set ManagerID = 8 Where EmployeeName IN ('Mark', 'Steve', 'Lara')
+Update SRDEmployees Set ManagerID = 2 Where EmployeeName IN ('Stacy', 'Simon')
+Update SRDEmployees Set ManagerID = 3 Where EmployeeName IN ('Tom')
+Update SRDEmployees Set ManagerID = 5 Where EmployeeName IN ('John', 'Sam')
+Update SRDEmployees Set ManagerID = 4 Where EmployeeName IN ('David')
+GO
