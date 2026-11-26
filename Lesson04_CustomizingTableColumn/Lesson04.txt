@@ -1,0 +1,86 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-4-customizing-table-column-and.html
+
+ Part 4 - Customizing table, column and foreign key column names when using entity framework code first approach
+Suggested Videos
+Part 1 - What is Entity Framework
+Part 2 - Entity Framework Model First Approach
+Part 3 - Entity Framework Code First Approach
+
+
+
+In this video we will discuss, customizing table, 
+column and foreign key column names when using entity framework code first approach. 
+This is continuation to Part 3. Please watch Part 3 before proceeding.
+
+
+
+In Part 3, we have discussed generating Departments and Employees tables using Entity Framework Code first approach. 
+
+Entity Framework generated the following Employees table. 
+Notice the column names. Department_Id column has an underscore in it's name. 
+Let's say we want the column to be generated as DepartmenId (without an underscore)
+Customizing foreign key column name using Entity Framework Code first approach
+
+Entity Framework generated the above Employees table based on the following custom Employee class that we created.
+public class Employee
+{
+    public int Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Gender { get; set; }
+    public int Salary { get; set; }
+    public Department Department { get; set; }
+}
+
+To achieve this use the ForeignKey attribute present in System.ComponentModel.DataAnnotations.Schema namespace. 
+Modify the Employee class as shown below.
+public class Employee
+{
+    public int Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Gender { get; set; }
+    public int Salary { get; set; }
+    public int DepartmentId { get; set; }
+    [ForeignKey("DepartmentId")]
+    public Department Department { get; set; }
+}
+
+Rebuild the solution, and run the application.
+
+You will get the following error. 
+We will discuss the reasons for this error and how to fix it the right way in a later video session.
+The model backing the 'EmployeeDBContext' context has changed since the database was created. 
+Consider using Code First Migrations to update the database (http://go.microsoft.com/fwlink/?LinkId=238269).
+
+
+For now to get around the error, 
+delete the Sample database using SQL Server Management Studio, 
+and then try to run the application again. 
+A blank webform will be displayed. 
+Now check the Employees tables using SQL Server Management Studio and notice that the DepartmentId column is created without an underscore as expected.
+Influencing foreign key column naming in EF code first
+
+To customize the table name, 
+use Table attribute and to customize column name use Column attribute. 
+
+For example, to change
+Table name from Employees to tblEmployees and
+FirstName column to First_Name 
+
+We would modify the Employee class as shown below.
+[Table("tblEmployees")]
+public class Employee
+{
+    public int Id { get; set; }
+    [Column("First_Name")]
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Gender { get; set; }
+    public int Salary { get; set; }
+    public int DepartmentId { get; set; }
+    [ForeignKey("DepartmentId")]
+    public Department Department { get; set; }
+}
+
+Entity Framework would then generate the following. Notice the table name and First_Name column.
