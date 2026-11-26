@@ -1,0 +1,90 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-15-conditional-mapping-in-entity.html
+
+
+ Part 15 - Conditional Mapping in entity framework with code first
+Suggested Videos
+Part 12 - Table splitting in entity framework
+Part 13 - Table splitting in entity framework with code first approach
+Part 14 - Conditional Mapping in entity framework
+
+
+
+In Part 14, we discussed Conditional Mapping in entity framework with database first approach. 
+Please watch Part 14 before proceeding. In this video we will discuss Conditional Mapping in entity framework with code first approach.
+
+
+
+Step 1: Create a new empty asp.net web application project. 
+Name it Demo. Install entity framework if it's not already installed.
+
+Step 2: Add a class file to the project. Name it Employee.cs. Copy and paste the following code.
+namespace Demo
+{
+    public class Employee
+    {
+        public int EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Gender { get; set; }
+        public bool IsTerminated { get; set; }
+    }
+}
+
+Step 3: Add a class file to the project. Name it EmployeeDBContext.cs. Copy and paste the following code.
+using System.Data.Entity;
+namespace Demo
+{
+    public class EmployeeDBContext : DbContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>()
+                .Map(m => m.Requires("IsTerminated")
+                .HasValue(false))
+                .Ignore(m => m.IsTerminated);
+
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}
+
+Step 4: Add the database connection string in web.config file.
+<connectionStrings>
+  <add name="EmployeeDBContext"
+            connectionString="server=.; database=Sample; integrated security=SSPI;"
+            providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+Step 5: Add a webform to the project. Drag and drop a GridView control. 
+
+Step 6: Copy and paste the following code in the code-behind file.
+protected void Page_Load(object sender, EventArgs e)
+{
+    EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+    GridView1.DataSource = employeeDBContext.Employees.ToList();
+    GridView1.DataBind();
+}
+
+Step 7: If you already have Sample database in SQL Server. Delete it from SQL Server Management Studio.
+
+Step 8: Run the application. Sample database and Employees table must be created at this point.
+
+Step 9: Insert test data using the following SQL script
+Insert into Employees values ('Mark', 'Hastings', 'Male', 0)
+Insert into Employees values ('Steve', 'Pound', 'Male', 0)
+Insert into Employees values ('Ben', 'Hoskins', 'Male', 0)
+Insert into Employees values ('Philip', 'Hastings', 'Male', 1)
+Insert into Employees values ('Mary', 'Lambeth', 'Female', 0)
+Insert into Employees values ('Valarie', 'Vikings', 'Female', 0)
+Insert into Employees values ('John', 'Stanmore', 'Male', 1)
+
+Step 10: Open SQL profiler and run the webform. Notice that the select query has a WHERE clause, which will always return employees who are not terminated.
+SELECT
+    [Extent1].[EmployeeID] AS [EmployeeID],
+    [Extent1].[FirstName] AS [FirstName],
+    [Extent1].[LastName] AS [LastName],
+    [Extent1].[Gender] AS [Gender]
+    FROM [dbo].[Employees] AS [Extent1]
+    WHERE [Extent1].[IsTerminated] = 0
