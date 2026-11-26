@@ -1,0 +1,153 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-8-using-stored-procedures-with.html
+
+ Part 8 - Using stored procedures with entity framework code first approach
+Suggested Videos
+Part 5 - How to handle model changes in entity framework
+Part 6 - How to seed database with test data using entity framework
+Part 7 - Using stored procedures with entity framework
+
+
+
+In this video we will discuss using stored procedures to perform Insert, 
+Update and Delete operations using entity framework code first approach. 
+
+
+
+Step 1: Create a new empty asp.net web application project. 
+Name it Demo. Install entity framework if it's not already installed.
+
+Step 2: Add a class file to the project. Name it Employee.cs. Copy and paste the following code.
+namespace Demo
+{
+    public class Employee
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string Gender { get; set; }
+        public int Salary { get; set; }
+    }
+}
+
+Step 3: Add a class file to the project. Name it EmployeeDBContext.cs. Copy and paste the following code.
+using System.Data.Entity;
+namespace Demo
+{
+    public class EmployeeDBContext : DbContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            // This line will tell entity framework to use stored procedures
+            // when inserting, updating and deleting Employees
+            modelBuilder.Entity<Employee>().MapToStoredProcedures();
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}
+
+Step 4: Add a class file to the project. Name it EmployeeRepository.cs. Copy and paste the following code.
+using System.Collections.Generic;
+using System.Linq;
+namespace Demo
+{
+    public class EmployeeRepository
+    {
+        EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+        public List<Employee> GetEmployees()
+        {
+            return employeeDBContext.Employees.ToList();
+        }
+
+        public void InsertEmployee(Employee employee)
+        {
+            employeeDBContext.Employees.Add(employee);
+            employeeDBContext.SaveChanges();
+        }
+
+        public void UpdateEmployee(Employee employee)
+        {
+            Employee employeeToUpdate = employeeDBContext
+                .Employees.SingleOrDefault(x => x.ID == employee.ID);
+            employeeToUpdate.Name = employee.Name;
+            employeeToUpdate.Gender = employee.Gender;
+            employeeToUpdate.Salary = employee.Salary;
+            employeeDBContext.SaveChanges();
+        }
+
+        public void DeleteEmployee(Employee employee)
+        {
+            Employee employeeToDelete = employeeDBContext
+                .Employees.SingleOrDefault(x => x.ID == employee.ID);
+            employeeDBContext.Employees.Remove(employeeToDelete);
+            employeeDBContext.SaveChanges();
+        }
+    }
+}
+
+Step 5: Add the database connection string in web.config file.
+<connectionStrings>
+  <add name="EmployeeDBContext"
+    connectionString="server=.; database=Sample; integrated security=true;"
+    providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+Step 6: Add a webform to the project. Drag and drop the following 3 controls and build the solution.
+1. GridView
+2. DetailsView
+3. ObjectDataSource
+
+Step 7: Configure ObjectDataSource control
+a). Right click on ObjectDataSource control and select "Show Smart Tag" option
+b) Click on Configure Data Source link
+c) Select Demo.EmployeeRepository on Choose a Business Object screen and click Next
+d) On Define Data Methods screen
+    i) On SELECT tab - Select GetEmployees() method
+    ii) On UPDATE tab - Select UpdateEmployees(Employee employee) method
+    iii) On INSERT tab - Select InsertEmployees(Employee employee) method
+    iv) On DELETE tab - Select DeletEmployees(Employee employee) method
+
+Step 8: Configure GridView control
+a). Right click on GridView control and select "Show Smart Tag" option
+b) Click on "Auto Format" link and select "Colourful" scheme
+c) Select "ObjectDataSource1" from "Choose Data Source" dropdownlist
+d) Select Enable Editing and Enable Deleting checkboxes
+e) Set DataKeyNames="ID". Do this in the properties window of the GridView control
+
+Step 9: Configure DetailsView control
+a) Right click on DetailsView control and select "Show Smart Tag" option
+b) Click on "Auto Format" link and select "Colourful" scheme
+c) Select "ObjectDataSource1" from "Choose Data Source" dropdownlist
+d) Select Enable Inserting checkbox
+e) Set DeafultMode=Insert. Use properties window to set this.
+f) Set InsertVisible="false" for the ID BoundField. You can do this directly in the HTML Source.
+
+Step 10: If you already have Sample database in SQL Server. Delete it from SQL Server Management Studio.
+
+Step 11: Run the application by pressing CTRL + F5. Notice that we don't have any data displayed on WebForm1. This is because we don't have any data in the Employees table. 
+
+
+At this point we have the Sample database and Employees table created automatically. The following stored procedures are also automatically created.
+Employee_Delete
+Employee_Insert
+Employee_Update
+
+By default, the following should be the naming convention for the stored procedures.
+INSERT stored procedure - [Entity_Name]_Insert. Insert Stored procedure should return the auto-generated identity column value.
+UPDATE stored procedure - [Entity_Name]_Update
+DELETE stored procedure - [Entity_Name]_Delete
+
+Step 12: Use the below SQL script to populate Employees tables with test data.
+Insert into Employees values ('Mark', 'Male', 60000)
+Insert into Employees values ('Steve', 'Male', 45000)
+Insert into Employees values ('Ben', 'Male', 70000)
+Insert into Employees values ('Philip', 'Male', 45000)
+Insert into Employees values ('Mary', 'Female', 30000)
+Insert into Employees values ('Valarie', 'Female', 35000)
+Insert into Employees values ('John', 'Male', 80000)
+
+At this point, 
+1. Run SQL Prrofiler
+2. Run the application
+3. Insert, Update and Delete Employees, and notice that the respective stored procedures are being called as expected.
