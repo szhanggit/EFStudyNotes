@@ -1,0 +1,115 @@
+ Part 2 - Entity Framework Model First Approach
+Suggested Videos
+Part 1 - What is Entity Framework
+
+
+
+In this video we will discuss using Model First Approach of Entity Framework. This is continuation to Part 1. Please watch Part 1 before proceeding.
+
+Entity Framework supports the following three approaches
+1. Schema First Approach - Discussed in Part 1
+2. Model First Approach - In this video.
+3. Code First Approach - Next Video
+
+
+
+In the Model First Approach, we first create the Entity Model. That is we create
+1. Entities
+2. Relationships between entities
+3. Inheritance hierarchies etc.
+
+We do all this directly on the design surface of the EDMX file. 
+We will be continuing with the same example that we started in Part 1 of Entity Framework Tutorial.
+
+Step 1: First delete the "EmployeeModel.edmx" file from the existing solution
+
+Step 2: Add a new "ADO.NET Entity Data Model" file with name = EmployeeModel. 
+
+Step 3: On "Choose Model Contents" screen, select "Empty Model" and click "Finish"
+model-first example in entity framework
+
+Step 4: At this point, we have a blank EmployeeModel.edmx file added to the solution. 
+Now, right click on the designer surface and then select : Add - Entity. 
+Set, 
+Entity Name = Department
+Base Type = None
+Entity Set = Departments
+Create Key property = Select the check box
+Property Name = Id
+Property Type = Int32
+
+Finally click OK.
+Creating entity with model first approach
+
+Step 5: Right click on "Department" entity and select "Add - Scalar Property". 
+Change the property name to "Name". 
+Right click on the "Name" property that we just added and select "properties" from the context menu. 
+Notice that the "Type" of "Name" property is set to "String".
+
+Step 6: Similarly add "Location" property for the "Department" entity. 
+At this point, the "Department" entity should look as shown below.
+Department entity
+
+Step 7: Add "Employee" entity and the following scalar properties.
+FirstName (Type = string)
+LastName (Type = string)
+Gender (Type = string)
+Salary (Type = int)
+
+Step 8: At this point, Department and Employee entities should look as shown below.
+Department and employee entities
+
+Step 9: We need to add "Employees" navigation property for the "Department" entity, and "Department" navigation property for the "Employee" entity. 
+To do this, right click on the design surface and select "Add - Association". 
+In the "Add Association" window, set values as shown in the image below and click "OK"
+How to add navigation property to an entity
+
+Step 10: At this point, we should have the following created.
+a) Employees navigation property in the Department entity
+
+b) Department navigation property in the Employee entity
+c) DepartmentId scalar property
+Department and employee entities with navigation properties
+
+Step 11: Right click on the design surface, and select "Genedrate Database from Model..." option
+
+Step 12: On "Choose Your Data Connection" screen, click "Next"
+
+Step 13: At this point, we should have the required SQL generated to create 
+a) Departments table
+b) Employees table
+c) Primary key constraints for Departments and Employees tables
+d) Foreign key constraint
+e) Indexes
+
+Step 14: Click Finish. Now, we should have "EmployeeModel.edmx.sql" file generated with the required SQL. 
+If you already have "Departments" and "Employees" tables in the database, delete them. 
+Right click on the file and select "Execute SQL" option from the context menu.
+
+Step 15: Populate the "Departments" and "Employees" tables with sample data using the script below.
+Insert into Departments values ('IT', 'New York')
+Insert into Departments values ('HR', 'London')
+Insert into Departments values ('Payroll', 'Sydney')
+
+Insert into Employees values ('Mark', 'Hastings', 'Male', 60000, 1)
+Insert into Employees values ('Steve', 'Pound', 'Male', 45000, 3)
+Insert into Employees values ('Ben', 'Hoskins', 'Male', 70000, 1)
+Insert into Employees values ('Philip', 'Hastings', 'Male', 45000, 2)
+Insert into Employees values ('Mary', 'Lambeth', 'Female', 30000, 2)
+Insert into Employees values ('Valarie', 'Vikings', 'Female', 35000, 3)
+Insert into Employees values ('John', 'Stanmore', 'Male', 80000, 1)
+
+Step 16: Run the application by pressing CTRL + F5. We will get the following runtime error.
+The specified default EntityContainer name 'EmployeeDBContext' could not be found in the mapping 
+and metadata information.
+Parameter name: defaultContainerName
+
+Step 17: Open WebForm1.aspx in source mode, and set ConnectionString and DefaultContainerName properties of EntityDataSource control as shown below.
+<asp:EntityDataSource ID="EntityDataSource1" runat="server"
+    ConnectionString="name=EmployeeModelContainer"
+    DefaultContainerName="EmployeeModelContainer"
+    EnableFlattening="False"
+    EntitySetName="Departments" Include="Employees">
+</asp:EntityDataSource>
+
+At this point we should get the output we expect.
