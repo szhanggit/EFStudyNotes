@@ -1,0 +1,2 @@
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="uc.ascx.cs" Inherits="Standard2.UserControl.uc" %>
+<asp:TextBox ID="txt" runat="server"></asp:TextBox><asp:Button ID="btn" runat="server" Text="Button" OnClick="btn_Click" />

@@ -1,0 +1,66 @@
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary, time, mark, audio, video
+{margin: 0; padding: 0; border: 0; outline: 0; font-size: 100%; vertical-align: baseline;}
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section{display: block;}
+nav ul{list-style: none;}
+blockquote, q{quotes: none;}
+blockquote:before, blockquote:after, q:before, q:after{content: ''; content: none;}
+ins{background-color: #ff9; color: #000; text-decoration: none;}
+mark{background-color: #ff9; color: #000; font-style: italic; font-weight: bold;}
+del{text-decoration: line-through;}
+abbr[title], dfn[title]{border-bottom: 1px dotted; cursor: help;}
+table{border-collapse: collapse; border-spacing: 0;}
+hr{display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; margin: 1em 0; padding: 0;}
+input, select{vertical-align: middle;}
+
+/**
+* Core Layout
+*
+* Basic styling for most X/HTML elements to give a general layout that is
+* usable and shared across all devices and browsing platforms.
+*
+* @section	core
+*/
+body{line-height: 1; background-color: #FFF;color: #444444; font-family: 'Lucida Grand', 'Lucida Sans'; }
+
+a{margin: 0; padding: 0; font-size: 100%; vertical-align: baseline; background: transparent; color: #444444; font-size: 16px;}
+a:focus, a:hover{outline: none; text-decoration: none;}
+address, p, hr {margin: 18px 0;}
+address{font-style: normal;}
+h1, h2, h3, h4, h5, h6 {font-weight: normal; line-height: normal; margin: 0;}
+img{-ms-interpolation-mode: bicubic;}
+blockquote, dl, ol, ul{margin: 18px 0 18px 36px;}
+blockquote *, dl *, ol *, ul *{margin: 0;}
+ol ol, ol ul, ul ul, ul ol{margin: 9px 0 9px 36px;}
+sub, sup{font-size: smaller;line-height: 0;}
+sub{vertical-align: sub;}
+sup{vertical-align: super;}
+.clearfix{clear: both;height: 0px;}
+.hidden{display: none !important;}
+
+#header{display:block; width: 40%; margin-top:20px; margin-left: 15px; font-size: 13px; float:left;}
+#main{display:block; float:left;}
+
+.menuType{border: 1px solid #d2d2d2; margin-bottom: 20px; display: block; min-height :36px; width: 600px; margin:auto;}
+.menuTypeHead{background-color: #ACACAC; border: 2px solid #FFFFFF; display: block; padding: 9px 10px; position: relative; width: 576px;}
+.menuTypeHead h4{display:block;  padding-left: 18px; color:#313131; font-size: 12px; margin: 0px; width: 80%;}
+.menuTypeHead a{color: #FEFEFD; float: right; font-size: 14px; font-weight: bold; padding-left: 20px; padding-right: 0; padding-top: 3px; position: absolute; right: 25px; text-align: left; top: 7px; width: 55px;}
+.menuTypeHead .collapse{display:none;  background: url(../img/collapse.png) no-repeat scroll 0 3px transparent; }
+.menuTypeHead .expand{display:block;  background: url(../img/expand.png) no-repeat scroll 0 3px transparent; }
+span{font-style:italic; margin-left: 28px; margin-bottom: 20px; display:block;}
+span.chkSelectAll { margin-left: 0; margin-bottom: 0; display:inline;}
+.chkSelectAll { font-style: normal; }
+.menuType .inside{ display:none; margin: 20px 0px 0px; }
+.menuType .inside p{padding-left:34px; }
+.menuType .inside input{margin-left: 34px; margin-right:5px;}
+.menuType .inside .menu-description{ margin-left: 34px; margin-right: 26px; margin-top: 8px;}
+.menuType .inside .menu-description div{ display: block; width: 46%; float:left;}
+.menuType .inside .menu-description .left-menu{margin-right: 45px;}
+.menuTypeHead a{}
+.menuType ul{display:block;  width: 50em; margin-left: 34px;}
+.menuType ul li{ width: 25em; display: block;  float:left; color:#313131;}
+.menuItem.alt{background-color:#f4f4f4;}
+.menuItem{padding: 15px 0 10px;}
+.menuItem  span.menuItemHeader{margin-left: 32px;color: #000000;font-weight: bold;}
+.menuItem span{display:inline; font-style:normal; margin-left:10px;}
+.menuItem label{color:#000; font-weight:bold; margin-left: 34px;}
+.menuDescription{margin-left:32px;}

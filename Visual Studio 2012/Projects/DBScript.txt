@@ -1,0 +1,92 @@
+use Interview
+
+if OBJECT_ID ('student_class', 'u') is not null
+drop table student_class
+
+if OBJECT_ID('Class', 'U') is not null
+drop table Class
+
+if OBJECT_ID('teacher', 'u') is not null
+drop table teacher
+
+if OBJECT_ID('student', 'u') is not null
+drop table student
+
+
+create table student
+(
+	studentid int identity(1,1) not null primary key,
+	studentname varchar(50) not null,
+	gender int,
+	constraint student_con check (studentid > 0)
+)
+
+insert student(studentname, gender) values ('Tom', 1);
+insert student(studentname, gender) values ('Mark', 1);
+insert student(studentname, gender) values ('Jason', 1);
+insert student(studentname, gender) values ('Mary', 0);
+insert student(studentname, gender) values ('Steven', 1);
+
+create table teacher
+(
+	teacherid int identity(1,1) not null primary key,
+	teachername varchar(50),
+	gender int,
+	constraint teacher_con check (teacherid > 0)
+)
+
+insert teacher(teachername, gender) values ('Dr. Freeman', 1);
+insert teacher(teachername, gender) values ('Dr. Cooper', 1);
+
+Create Table Class
+(
+classid int identity(1,1) not null primary key,
+classname varchar(50) not null,
+credit int default 3,
+startdate datetime,
+enddate datetime,
+teacherid int foreign key references teacher(teacherid),
+constraint class_con check (credit >= 3)
+)
+
+insert class(classname, credit, startdate, enddate, teacherid) values ('Operating System', 4, '12/11/2015', '12/11/2016', 2);
+insert class(classname, credit, startdate, enddate, teacherid) values ('JQuery', 4, '12/11/2015', '12/11/2016', 1);
+insert class(classname, credit, startdate, enddate, teacherid) values ('ASP.NET', 4, '12/11/2015', '12/11/2016', 1);
+insert class(classname, credit, startdate, enddate, teacherid) values ('MVC', 4, '12/11/2015', '12/11/2016', 1);
+
+create table student_class
+(
+	student_classid int identity(1,1) not null primary key,
+	studentid int not null foreign key references student(studentid),
+	classid int not null foreign key references class(classid),
+	constraint student_classid_con check (student_classid > 0)
+)
+
+insert student_class(studentid, classid) values (1, 2);
+insert student_class(studentid, classid) values (2, 2);
+insert student_class(studentid, classid) values (3, 2);
+insert student_class(studentid, classid) values (4, 2);
+insert student_class(studentid, classid) values (5, 2);
+
+
+
+-------------------------------------------------------
+
+
+
+
+
+Create TRIGGER [dbo].[tri_classDelete]
+   ON  [dbo].[class]
+   instead of DELETE
+AS
+BEGIN
+    declare @classId int
+    select @classId=classId from deleted
+    delete student_class where classId=@classId
+    delete class where classId=@classId
+END
+
+
+Instead of: Create deleted table and inserted table, execute trigger, update physical tables.
+After: Create deleted table and inserted table, update physical tables, execute trigger.

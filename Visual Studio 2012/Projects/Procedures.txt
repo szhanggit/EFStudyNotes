@@ -1,0 +1,52 @@
+create procedure createsc
+@student_classid integer out,
+@studentid int,
+@classid int
+AS
+begin transaction
+
+
+Declare @num int;
+
+select @num = count(*) from student_class 
+where studentid = @studentid and classid = @classid
+
+if @num >= 1 goto errorhandler
+
+insert into student_class(studentid, classid) values (@studentid, @classid);
+select @student_classid = scope_identity()
+if @@error <> 0 goto errorhandler
+
+commit transaction [createsc]
+return
+
+errorhandler:
+rollback transaction
+return
+
+
+----------------------------------
+
+
+
+SqlConnection cn = new SqlConnection(ConStr);
+cn.Open();
+SqlTransaction trs = cn.BeginTransaction();
+SqlCommand cmd = new SqlCommand();
+cmd.Connection = cn;
+cmd.Transaction = trs;
+
+try
+{
+	cmd.CommandText = "asdf";
+	cmd.ExecuteNonQuery();
+	trs.Commit();
+}
+catch()
+{
+	trs.Rollback();
+}
+finally
+{
+	cn.Close();
+}

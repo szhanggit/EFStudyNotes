@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.757
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "trycodefirst", "trycodefirst\trycodefirst.csproj", "{F0FF629E-CA72-46F9-9F33-C8D6EE335CBA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F0FF629E-CA72-46F9-9F33-C8D6EE335CBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0FF629E-CA72-46F9-9F33-C8D6EE335CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0FF629E-CA72-46F9-9F33-C8D6EE335CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0FF629E-CA72-46F9-9F33-C8D6EE335CBA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3849F1BD-DD48-4FB0-8D88-92D6C2DF0FA4}
+	EndGlobalSection
+EndGlobal
