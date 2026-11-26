@@ -1,0 +1,7 @@
+﻿Insert into Employees values ('Mark', 'Male', 60000)
+Insert into Employees values ('Steve', 'Male', 45000)
+Insert into Employees values ('Ben', 'Male', 70000)
+Insert into Employees values ('Philip', 'Male', 45000)
+Insert into Employees values ('Mary', 'Female', 30000)
+Insert into Employees values ('Valarie', 'Female', 35000)
+Insert into Employees values ('John', 'Male', 80000)
