@@ -1,0 +1,37 @@
+﻿https://code-maze.com/net-core-web-development-part4/
+
+use BAGA2
+drop table [owner]
+CREATE TABLE [dbo].[owner](
+	[OwnerId] uniqueidentifier NOT NULL,
+	[Name] [nvarchar](50) NULL,
+	[DateOfBirth] [DateTime] NULL,
+	[Address] [nvarchar](1000) NULL,
+ CONSTRAINT [PK_Owner] PRIMARY KEY CLUSTERED 
+(
+	[OwnerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+insert into [owner] (OwnerId, [Name], DateOfBirth, [Address]) values (newid(), 'Peter', DateAdd(Year,-30, GETDATE()), 'asfasdfasdfsdf');
+insert into [owner] (OwnerId, [Name], DateOfBirth, [Address]) values (newid(), 'Tom', DateAdd(Year,-45, GETDATE()), 'oiuoijuouoiuoui;');
+select * from [owner] with(nolock)
+
+
+CREATE TABLE [dbo].[account](
+	[AccountId] uniqueidentifier NOT NULL,
+	[DateCreated] [DateTime] NULL,
+	[AccountType] [varchar](10) NULL,
+	[OwnerId] uniqueidentifier NULL,
+ CONSTRAINT [PK_Account] PRIMARY KEY CLUSTERED 
+(
+	[AccountId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+constraint fk_account_owner foreign key (OwnerId) references [owner] (OwnerId)
+) ON [PRIMARY]
+
+insert into [account] (AccountId, DateCreated, AccountType, OwnerId) values (newid(), GETDATE(), 'Aboard', '83BCA328-D032-47B8-91D0-85423BB81737');
+insert into [account] (AccountId, DateCreated, AccountType, OwnerId) values (newid(), GETDATE(), 'Domestic', '83BCA328-D032-47B8-91D0-85423BB81737');
+insert into [account] (AccountId, DateCreated, AccountType, OwnerId) values (newid(), GETDATE(), 'Domestic', '4714A33B-1AE2-4274-B7BA-CAD5FFEA7A8C');
+
+select * from account
