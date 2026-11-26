@@ -1,0 +1,207 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-20-table-per-type-tpt-inheritance.html
+
+ Part 20 - Table Per Type (TPT) inheritance in entity framework
+Suggested Videos
+Part 17 - Self referencing association in entity framework with code first
+Part 18 - Table Per Hierarchy (TPH) inheritance in entity framework
+Part 19 - Table Per Hierarchy (TPH) inheritance in entity framework with code first
+
+
+
+In this video we will discuss implementing Table Per Type (TPT) inheritance in entity framework with database first approach. 
+In TPT inheritance one database table per type is used to store data for the respective entity types in the inheritance hierarchy. 
+This means there is no problem of de-normalized tables.
+
+
+
+In Parts 18 and 19 of Entity Framework tutorial we discussed how inheritance hierarchy can be represented using Table Per Hierarchy (TPH). 
+With TPH one database table is used to store data of all the entity types in the inheritance hierarchy. 
+The downside of this is that we have a denormalized table and some columns will have NULL values depending 
+on the type of the derived object being saved to the database table. 
+
+Example: Consider the following inheritance hierarchy
+tph example
+
+The data of all the entity types in the above inheritance hierarchy is stored in the following Employees table
+tph example in entity framework
+
+The problem with TPH is that when we store a PermanentEmployee object to this table, 
+HoursWorked & HourlyPay columns will be left NULL. Along the same lines, 
+when we store a ContractEmployee object, AnnualSalary column will be NULL. 
+With Table Per Type inheritance we don't have this problem.
+
+We will be using the followin 3 tables to implement Table Per Type (TPT) inheritance. 
+Notice that EmployeeID is the primary key of Employees table. In PermanentEmployees & ContractEmployees, 
+EmployeeID is the foreign key.
+table per type inheritance example
+
+SQL Script to create the above 3 tables
+Create Table Employees
+(
+     EmployeeID int primary key,
+     FirstName nvarchar(50),
+     LastName nvarchar(50),
+     Gender nvarchar(50),
+)
+GO
+
+Create Table PermanentEmployees
+(
+     EmployeeID int foreign key references
+     Employees(EmployeeID) not null,
+     AnnualSalary int
+)
+GO
+
+Create Table ContractEmployees
+(
+     EmployeeID int foreign key references
+     Employees(EmployeeID) not null,
+     HourlyPay int,
+     HoursWorked int
+)
+GO
+
+-- Employees Table Insert
+Insert into Employees values (1, 'Mark', 'Hastings', 'Male')
+Insert into Employees values (2, 'Steve', 'Pound', 'Male')
+Insert into Employees values (3, 'Ben', 'Hoskins', 'Male')
+Insert into Employees values (4, 'Philip', 'Hastings', 'Male')
+Insert into Employees values (5, 'Mary', 'Lambeth', 'Female')
+Insert into Employees values (6, 'Valarie', 'Vikings', 'Female')
+Insert into Employees values (7, 'John', 'Stanmore', 'Male')
+
+-- PermanentEmployees Table Insert
+Insert into PermanentEmployees values (1, 60000)
+Insert into PermanentEmployees values (3, 45000)
+Insert into PermanentEmployees values (4, 30000)
+Insert into PermanentEmployees values (7, 80000)
+
+-- ContractEmployees Table Insert
+Insert into ContractEmployees values (2, 50, 160)
+Insert into ContractEmployees values (5, 40, 120)
+Insert into ContractEmployees values (6, 30, 140)
+
+Now if we generate an ADO.NET entity data model based on the above 3 tables, 
+the following 3 entities are generated with an association instead of inheritance relation between the entities.
+table per type example
+
+Delete the association between Employee and PermanentEmployee entities. 
+This will also automatically delete the PermanentEmployee navigation property from Employee entity and Employee navigation property from PermanentEmployee entity.
+
+Along the same lines, delete the association between Employee and ContractEmployee entities. 
+This will also automatically delete the ContractEmployee navigation property from Employee entity and Employee navigation property from ContractEmployee entity.
+
+
+Now, add the inheritance relationship between Employee & ContractEmployee entities
+1. Right click on the designer surface and select Add - Inheritance option
+2. Select Employee as the Base Entity and ContractEmployee as the Derived entity
+adding inheritance relation between employee and contract employee entities
+
+Along the same line, add the inheritance relationship between Employee & PermanentEmployee entities
+1. Right click on the designer surface and select Add - Inheritance option
+2. Select Employee as the Base Entity and PermanentEmployee as the Derived entity
+adding inheritance relation between entities
+
+Now delete the EmployeeID property from both PermanentEmployee & ContractEmployee entities. 
+For both of these entities EmployeeID property will be available from the base Employee entity thru inheritance.
+
+At this point, the entity model should look as shown below.
+Table Per Type inheritance in entity framework
+
+Now, let us see how to query the data. Design a webform as shown below. 
+tph in entity framework
+
+Here is the HTML for the web form
+<div style="font-family:Arial">
+<asp:RadioButtonList ID="RadioButtonList1" runat="server"
+    AutoPostBack="True"
+    onselectedindexchanged="RadioButtonList1_SelectedIndexChanged">
+    <asp:ListItem Text="All Employees" Value="All"></asp:ListItem>
+    <asp:ListItem Text="Load Permanent Employees" Value="Permanent">
+    </asp:ListItem>
+    <asp:ListItem Text="Load Contract Employees" Value="Contract">
+    </asp:ListItem>
+</asp:RadioButtonList>
+<br />
+<asp:GridView ID="GridView1" runat="server">
+</asp:GridView>
+</div>
+
+Copy and paste the following code in the code-behind file
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+
+namespace Demo
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void RadioButtonList1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+            switch (RadioButtonList1.SelectedValue)
+            {
+                case "Permanent":
+                    GridView1.DataSource = employeeDBContext.Employees
+                        .OfType<PermanentEmployee>().ToList();
+                    GridView1.DataBind();
+                    break;
+
+                case "Contract":
+                    GridView1.DataSource = employeeDBContext.Employees
+                        .OfType<ContractEmployee>().ToList();
+                    GridView1.DataBind();
+                    break;
+
+                default:
+                    GridView1.DataSource =
+                        ConvertEmployeesForDisplay(employeeDBContext.Employees.ToList());
+                    GridView1.DataBind();
+                    break;
+            }
+        }
+
+        private DataTable ConvertEmployeesForDisplay(List<Employee> employees)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ID");
+            dt.Columns.Add("FirstName");
+            dt.Columns.Add("LastName");
+            dt.Columns.Add("Gender");
+            dt.Columns.Add("AnuualSalary");
+            dt.Columns.Add("HourlyPay");
+            dt.Columns.Add("HoursWorked");
+            dt.Columns.Add("Type");
+
+            foreach (Employee employee in employees)
+            {
+                DataRow dr = dt.NewRow();
+                dr["ID"] = employee.EmployeeID;
+                dr["FirstName"] = employee.FirstName;
+                dr["LastName"] = employee.LastName;
+                dr["Gender"] = employee.Gender;
+
+                if (employee is PermanentEmployee)
+                {
+                    dr["AnuualSalary"] = ((PermanentEmployee)employee).AnnualSalary;
+                    dr["Type"] = "Permanent";
+                }
+                else
+                {
+                    dr["HourlyPay"] = ((ContractEmployee)employee).HourlyPay;
+                    dr["HoursWorked"] = ((ContractEmployee)employee).HoursWorked;
+                    dr["Type"] = "Contract";
+                }
+                dt.Rows.Add(dr);
+            }
+
+            return dt;
+        }
+    }
+}
+
+Run the application and turn on the SQL profiler to inspect the queries that are generated.
+
