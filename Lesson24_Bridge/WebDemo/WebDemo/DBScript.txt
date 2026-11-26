@@ -1,0 +1,39 @@
+﻿Create Table BridgeCourses
+(
+     CourseID int identity primary key,
+     CourseName nvarchar(50)
+)
+GO
+
+Create Table BridgeStudents
+(
+     StudentID int identity primary key,
+     StudentName nvarchar(50)
+)
+GO
+
+Create Table BridgeStudentCourses
+(
+     StudentID int not null foreign key references BridgeStudents(StudentID),
+     CourseID int not null foreign key references BridgeCourses(CourseID),
+     EnrolledDate DateTime,
+     primary key (StudentID, CourseID)
+)
+GO
+
+Insert into BridgeCourses values ('C#')
+Insert into BridgeCourses values ('ASP.NET')
+Insert into BridgeCourses values ('SQL Server')
+Insert into BridgeCourses values ('WCF')
+GO
+
+Insert into BridgeStudents values ('Mike')
+Insert into BridgeStudents values ('John')
+GO
+
+Insert into BridgeStudentCourses values (1, 1, Getdate())
+Insert into BridgeStudentCourses values (1, 2, Getdate())
+Insert into BridgeStudentCourses values (2, 1, Getdate())
+Insert into BridgeStudentCourses values (2, 2, Getdate())
+Insert into BridgeStudentCourses values (2, 3, Getdate())
+GO

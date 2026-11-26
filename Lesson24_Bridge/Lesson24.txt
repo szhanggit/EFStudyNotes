@@ -1,0 +1,145 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-24-entity-for-bridgetable-in-many.html
+
+ Part 24 - Entity for BridgeTable in many to many relationship
+Suggested Videos
+Part 21 - Table Per Type (TPT) inheritance in entity framework code first
+Part 22 - Many to many relationship in entity framework
+Part 23 - Many to many relationship in entity framework code first
+
+
+
+In this video we will discuss a scenario in which Entity framework generates an Entity for the many-to-many relationship bridge table.
+
+
+
+In Part 22 we used the following 3 tables. Notice that the Bridge Table (StudentCourses) does not have any additional columns except for the foreign keys (StudentID & CourseID). When an entity model was created based on these 3 tables, an entity for the bridge table is not created.
+many to many relationship in entity framework
+
+Let us now, modify the Bridge Table (StudentCourses) to include EnrolledDate column.
+Entity for BridgeTable in many to many relationship
+
+SQL Script to create all the 3 tables (Courses, Students & StudentCourses)
+Create Table Courses
+(
+     CourseID int identity primary key,
+     CourseName nvarchar(50)
+)
+GO
+
+Create Table Students
+(
+     StudentID int identity primary key,
+     StudentName nvarchar(50)
+)
+GO
+
+Create Table StudentCourses
+(
+     StudentID int not null foreign key references Students(StudentID),
+     CourseID int not null foreign key references Courses(CourseID),
+     EnrolledDate DateTime,
+     primary key (StudentID, CourseID)
+)
+GO
+
+Insert into Courses values ('C#')
+Insert into Courses values ('ASP.NET')
+Insert into Courses values ('SQL Server')
+Insert into Courses values ('WCF')
+GO
+
+Insert into Students values ('Mike')
+Insert into Students values ('John')
+GO
+
+Insert into StudentCourses values (1, 1, Getdate())
+Insert into StudentCourses values (1, 2, Getdate())
+Insert into StudentCourses values (2, 1, Getdate())
+Insert into StudentCourses values (2, 2, Getdate())
+Insert into StudentCourses values (2, 3, Getdate())
+GO
+
+Now if we generate an ADO.NET entity data model based on the above 3 tables, 
+notice that 3 entities (Student, Course & StudentCourse) are generated. 
+An entity (StudentCourse) for the bridge table (StudentCourses) is also generated. 
+a) Student entity has One-Many relationship with StudentCourse Entity
+b) Course entity has One-Many relationship with StudentCourse Entity
+
+Entity Framework interview question : 
+Explain when an entity will and will not be created by the entity framework for the bridge table in a many-to-many relationship?
+An entity for the bridge table is NOT created when the bridge table has only the foreign keys. 
+On the other if the bridge table has any other columns apart from the foreign key columns then a bridge table is created.
+
+Querying data: We want to display students and courses data in a GridView as shown below.
+displaying many to many relationship data
+
+To achieve this
+1. Drag and drop a GridView & 2 Button controls on the webform
+
+2. Change the Text on Button1 control to "Assign WCF Course to Mike" and double click on the button control to generate the click event handler
+
+3. Change the Text on Button2 control to "Remove John from SQL Server Course" and double click on the button control to generate the click event handler
+
+4. At this point the webform design should look as shown below
+querying data in many to many relationship
+
+Copy and paste the following code in the code-behind file
+using System;
+using System.Linq;
+namespace Demo
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+            GridView1.DataSource = (from student in employeeDBContext.Students
+                                    from studentCourse in student.StudentCourses
+                                    select new
+                                    {
+                                        StudentName = student.StudentName,
+                                        CourseName = studentCourse.Course.CourseName,
+                                        EnrolledDate = studentCourse.EnrolledDate
+                                    }).ToList();
+
+            // The above query can also be written as shown below
+            //GridView1.DataSource = (from course in employeeDBContext.Courses
+            //                        from studentCourse in course.StudentCourses
+            //                        select new
+            //                        {
+            //                            StudentName = studentCourse.Student.StudentName,
+            //                            CourseName = course.CourseName,
+            //                            EnrolledDate = studentCourse.EnrolledDate
+            //                        }).ToList();
+
+            GridView1.DataBind();
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+            employeeDBContext.StudentCourses.AddObject
+                (new StudentCourse { StudentID = 1, CourseID = 4, 
+                                                       EnrolledDate = DateTime.Now });
+            employeeDBContext.SaveChanges();
+        }
+
+        protected void Button2_Click(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+            StudentCourse studentCourseToRemove = employeeDBContext.StudentCourses
+                .FirstOrDefault(x => x.StudentID == 2 && x.CourseID == 3);
+            employeeDBContext.StudentCourses.DeleteObject(studentCourseToRemove);
+            employeeDBContext.SaveChanges();
+        }
+    }
+}
+
+Run the application. 
+Notice that the data is displayed as expected. 
+Now, click on the following buttons, 
+and notice that StudentCourses table is updated as expected.
+a) Assign WCF Course to Mike
+b) Remove John from SQL Server Course
+
