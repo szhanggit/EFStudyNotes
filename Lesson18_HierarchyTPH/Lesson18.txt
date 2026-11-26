@@ -1,0 +1,215 @@
+https://csharp-video-tutorials.blogspot.com/2014/06/part-18-table-per-hierarchy-tph.html
+
+ Part 18 - Table Per Hierarchy (TPH) inheritance in entity framework
+Suggested Videos
+Part 15 - Conditional Mapping in entity framework with code first
+Part 16 - Self referencing association in entity framework
+Part 17 - Self referencing association in entity framework with code first
+
+
+
+In this video, 
+we will discuss implementing Table Per Hierarchy (TPH) inheritance in entity framework with database first approach. 
+In TPH inheritance one database table is used to store data for all of the entity types in the inheritance hierarchy. 
+Let us understand this with an example.
+
+
+
+We will be using the following Employees table.
+tph example in entity framework
+
+SQL Script to create Employees Table
+Create Table Employees
+(
+     ID int primary key identity,
+     FirstName nvarchar(50),
+     LastName nvarchar(50),
+     Gender nvarchar(50),
+     AnuualSalary int,
+     HourlyPay int,
+     HoursWorked int,
+     Discriminator nvarchar(50)
+)
+
+Insert into Employees values
+('Mark', 'Hastings', 'Male', 60000, NULL, NULL, 'PermanentEmployee')
+Insert into Employees values
+('Steve', 'Pound', 'Male', NULL, 50, 160, 'ContractEmployee')
+Insert into Employees values
+('Ben', 'Hoskins', 'Male', NULL, 40, 120, 'ContractEmployee')
+Insert into Employees values
+('Philip', 'Hastings', 'Male', 45000, NULL, NULL, 'PermanentEmployee')
+Insert into Employees values
+('Mary', 'Lambeth', 'Female', 30000, NULL, NULL, 'PermanentEmployee')
+Insert into Employees values
+('Valarie', 'Vikings', 'Female', NULL, 30, 140, 'ContractEmployee')
+Insert into Employees values
+('John', 'Stanmore', 'Male', 80000, NULL, NULL, 'PermanentEmployee')
+
+In our organization we have 2 types of employees
+1. Permanent Employees - AnuualSalary is specific for Permanent Employees
+2. Contract Employees - HourlyPay & HoursWorked is specific for Contract Employees
+
+
+Now if we generate an ADO.NET entity data model based on this Employees table, 
+by default the following Employee entity class is generated. 
+Table Per Hierarchy example
+
+But from an application perspective we want 3 entity classes
+Employee - This should be an abstract class and should contain all the common properties of permanent and contract employees. ID, FirstName, LastName & Gender properties should be present in this class.
+
+PermanentEmployee - This class should inherit from the abstract Employee class and should contain AnnualSalary property
+
+ContractEmployee - This class should inherit from the abstract Employee class and should contain HourlyPay & HoursWorked properties
+
+To achieve this using the Entity Framework designer
+1. Right click on the designer surface and select Add - Entity option, and provide the details as shown below and click OK.
+Add permanent employee entity
+
+2. Cut AnnualSalary property from Employee entity and paste it in Permanent Employee entity.
+
+3. Right click on the designer surface and select Add - Entity option, and provide the details as shown below and click OK.
+Add contract employee entity
+
+4. Cut HourlyPay & HoursWorked properties from Employee entity and paste then in Contract Employee entity. At this point, we should have the following 3 entities.
+Table Per Hierarchy inheritance in entity framework
+
+5. Right click on PermanentEmployee and select Table Mapping option, and map PermanentEmployee entity to Employees table. Also notice the conditional mapping, in which we are using Discriminator column to determine when an Employee can be PermanentEmployee.
+table mapping permanent employee entity
+
+6. Along the same lines, right click on ContractEmployee and select Table Mapping option, and map ContractEmployee entity to Employees table. Also notice the conditional mapping, in which we are using Discriminator column to determine when an Employee can be ContractEmployee.
+table mapping contract employee entity
+
+7. Since we are using Discriminator column in conditional mapping we cannot use it again with property mapping in Employee entity. So delete it from there.
+
+8. Finally right click on Employee entity and select properties. In the properties window set Abstract=true. This should make Employee class an abstract class. 
+
+
+Now, let us see how to query the data. Design a webform as shown below. 
+tph in entity framework
+
+Here is the HTML for the web form
+<div style="font-family: Arial">
+    <asp:RadioButtonList ID="RadioButtonList1" runat="server" AutoPostBack="True"
+        OnSelectedIndexChanged="RadioButtonList1_SelectedIndexChanged">
+        <asp:ListItem Text="Load all Employees" Value="All"></asp:ListItem>
+        <asp:ListItem Text="Load Permanent Employees" Value="Permanent"></asp:ListItem>
+        <asp:ListItem Text="Load Contract Employees" Value="Contract"></asp:ListItem>
+    </asp:RadioButtonList>
+    <asp:GridView ID="GridView1" runat="server">
+    </asp:GridView>
+</div>
+
+Here is the code behind code:
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+
+namespace Demo
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void RadioButtonList1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+
+            switch (RadioButtonList1.SelectedValue)
+            {
+                case "Permanent":
+                    GridView1.DataSource = employeeDBContext.Employees
+                        .OfType<PermanentEmployee>().ToList();
+                    GridView1.DataBind();
+                    break;
+
+                case "Contract":
+                    GridView1.DataSource = employeeDBContext.Employees
+                        .OfType<ContractEmployee>().ToList();
+                    GridView1.DataBind();
+                    break;
+
+                default:
+                    GridView1.DataSource = ConvertEmployeesForDisplay(
+                        employeeDBContext.Employees.ToList());
+                    GridView1.DataBind();
+                    break;
+            }
+        }
+
+        private DataTable ConvertEmployeesForDisplay(List<Employee> employees)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ID");
+            dt.Columns.Add("FirstName");
+            dt.Columns.Add("LastName");
+            dt.Columns.Add("Gender");
+            dt.Columns.Add("AnuualSalary");
+            dt.Columns.Add("HourlyPay");
+            dt.Columns.Add("HoursWorked");
+            dt.Columns.Add("Type");
+
+            foreach (Employee employee in employees)
+            {
+                DataRow dr = dt.NewRow();
+                dr["ID"] = employee.ID;
+                dr["FirstName"] = employee.FirstName;
+                dr["LastName"] = employee.LastName;
+                dr["Gender"] = employee.Gender;
+
+                if (employee is PermanentEmployee)
+                {
+                    dr["AnuualSalary"] = ((PermanentEmployee)employee).AnuualSalary;
+                    dr["Type"] = "Permanent";
+                }
+                else
+                {
+                    dr["HourlyPay"] = ((ContractEmployee)employee).HourlyPay;
+                    dr["HoursWorked"] = ((ContractEmployee)employee).HoursWorked;
+                    dr["Type"] = "Contract";
+                }
+                dt.Rows.Add(dr);
+            }
+
+            return dt;
+        }
+    }
+}
+
+Run the application and turn on the SQL profiler to inspect the queries that are generated.
+
+When Load All Employees radio button is selected:
+SELECT
+[Extent1].[Discriminator] AS [Discriminator],
+[Extent1].[ID] AS [ID],
+[Extent1].[FirstName] AS [FirstName],
+[Extent1].[LastName] AS [LastName],
+[Extent1].[Gender] AS [Gender],
+[Extent1].[AnuualSalary] AS [AnuualSalary],
+[Extent1].[HoursWorked] AS [HoursWorked],
+[Extent1].[HourlyPay] AS [HourlyPay]
+FROM [dbo].[Employees] AS [Extent1]
+WHERE [Extent1].[Discriminator] IN (N'PermanentEmployee',N'ContractEmployee')
+
+When Load Permanent Employees radio button is selected:
+SELECT
+'0X0X' AS [C1],
+[Extent1].[ID] AS [ID],
+[Extent1].[FirstName] AS [FirstName],
+[Extent1].[LastName] AS [LastName],
+[Extent1].[Gender] AS [Gender],
+[Extent1].[AnuualSalary] AS [AnuualSalary]
+FROM [dbo].[Employees] AS [Extent1]
+WHERE [Extent1].[Discriminator] = N'PermanentEmployee'
+
+When Load Contract Employees radio button is selected:
+SELECT
+'0X0X' AS [C1],
+[Extent1].[ID] AS [ID],
+[Extent1].[FirstName] AS [FirstName],
+[Extent1].[LastName] AS [LastName],
+[Extent1].[Gender] AS [Gender],
+[Extent1].[HoursWorked] AS [HoursWorked],
+[Extent1].[HourlyPay] AS [HourlyPay]
+FROM [dbo].[Employees] AS [Extent1]
+WHERE [Extent1].[Discriminator] = N'ContractEmployee'
+
