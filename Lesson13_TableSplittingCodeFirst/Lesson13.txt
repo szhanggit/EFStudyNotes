@@ -1,0 +1,198 @@
+https://csharp-video-tutorials.blogspot.com/2014/05/part-13-table-splitting-in-entity.html
+
+ Part 13 - Table splitting in entity framework with code first approach
+Suggested Videos
+Part 10 - Entity splitting in entity framework
+Part 11 - Entity splitting in entity framework with code first approach
+Part 12 - Table splitting in entity framework
+
+
+
+In this video we will discuss Table splitting in entity framework with code first approach. 
+We discussed Table Splitting with database first approach in Part 12.
+
+Mapping multiple entities to a single table is called table splitting.
+
+
+
+Step 1: Create a new empty asp.net web application project. 
+Name it Demo. Install entity framework if it's not already installed.
+
+Step 2: Add a class file to the project. Name it Employee.cs. Copy and paste the following code.
+namespace Demo
+{
+    public class Employee
+    {
+        public int EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Gender { get; set; }
+
+        public EmployeeContactDetail EmployeeContactDetail { get; set; }
+    }
+}
+
+Step 3: Add a class file to the project. Name it EmployeeContactDetail.cs. Copy and paste the following code.
+namespace Demo
+{
+    public class EmployeeContactDetail
+    {
+        public int EmployeeID { get; set; }
+        public string Email { get; set; }
+        public string Mobile { get; set; }
+        public string LandLine { get; set; }
+
+        public Employee Employee { get; set; }
+    }
+}
+
+Step 4: Add a class file to the project. Name it EmployeeDBContext.cs. Copy and paste the following code.
+using System.Data.Entity;
+namespace Demo
+{
+    public class EmployeeDBContext : DbContext
+    {
+        public DbSet<Employee> Employees { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>()
+                .HasKey(pk => pk.EmployeeID)
+                .ToTable("Employees");
+
+            modelBuilder.Entity<EmployeeContactDetail>()
+                .HasKey(pk => pk.EmployeeID)
+                .ToTable("Employees");
+
+            modelBuilder.Entity<Employee>()
+                .HasRequired(p => p.EmployeeContactDetail)
+                .WithRequiredPrincipal(c => c.Employee);
+        }
+    }
+}
+
+Step 5: Add the database connection string in web.config file.
+<connectionStrings>
+  <add name="EmployeeDBContext"
+      connectionString="server=.; database=Sample; integrated security=SSPI;"
+      providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+Step 6: Add a web form to the project. Copy and paste the following HTML in the aspx page
+<div style="font-family:Arial">
+    <asp:CheckBox ID="checkBoxIncludeContactDetails"
+    Text="Include Contact Details" runat="server" />
+    <br />
+    <asp:Button ID="Button1" runat="server" Text="Get Employee Data"
+        onclick="Button1_Click" />
+    <asp:GridView ID="GridView1" runat="server">
+    </asp:GridView>
+</div>
+
+Step 7: Copy and paste the following code in the code-behind file.
+public partial class WebForm1 : System.Web.UI.Page
+{
+    private DataTable GetEmployeeData()
+    {
+        EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+        List<Employee> employees = employeeDBContext.Employees.ToList();
+
+        DataTable dataTable = new DataTable();
+        DataColumn[] columns = { new DataColumn("EmployeeID"),
+                                 new DataColumn("FirstName"),
+                                 new DataColumn("LastName"),
+                                 new DataColumn("Gender")};
+
+        dataTable.Columns.AddRange(columns);
+
+        foreach (Employee employee in employees)
+        {
+            DataRow dr = dataTable.NewRow();
+            dr["EmployeeID"] = employee.EmployeeID;
+            dr["FirstName"] = employee.FirstName;
+            dr["LastName"] = employee.LastName;
+            dr["Gender"] = employee.Gender;
+
+            dataTable.Rows.Add(dr);
+        }
+
+        return dataTable;
+    }
+
+    private DataTable GetEmployeeDataIncludingContactDetails()
+    {
+        EmployeeDBContext employeeDBContext = new EmployeeDBContext();
+        List<Employee> employees = employeeDBContext.Employees
+            .Include("EmployeeContactDetail").ToList();
+
+        DataTable dataTable = new DataTable();
+        DataColumn[] columns = { new DataColumn("EmployeeID"),
+                                 new DataColumn("FirstName"),
+                                 new DataColumn("LastName"),
+                                 new DataColumn("Gender"),
+                                 new DataColumn("Email"),
+                                 new DataColumn("Mobile"),
+                                 new DataColumn("LandLine") };
+        dataTable.Columns.AddRange(columns);
+
+        foreach (Employee employee in employees)
+        {
+            DataRow dr = dataTable.NewRow();
+            dr["EmployeeID"] = employee.EmployeeID;
+            dr["FirstName"] = employee.FirstName;
+            dr["LastName"] = employee.LastName;
+            dr["Gender"] = employee.Gender;
+            dr["Email"] = employee.EmployeeContactDetail.Email;
+            dr["Mobile"] = employee.EmployeeContactDetail.Mobile;
+            dr["LandLine"] = employee.EmployeeContactDetail.LandLine;
+
+            dataTable.Rows.Add(dr);
+        }
+
+        return dataTable;
+    }
+
+    protected void Button1_Click(object sender, EventArgs e)
+    {
+        if (checkBoxIncludeContactDetails.Checked)
+        {
+            GridView1.DataSource = GetEmployeeDataIncludingContactDetails();
+        }
+        else
+        {
+            GridView1.DataSource = GetEmployeeData();
+        }
+        GridView1.DataBind();
+    }
+}
+
+At this point, run the application. Sample database and Employees table should be created by the entity framework.
+
+Step 8: Insert test data using the following SQL script
+
+Insert into Employees values ('Mark', 'Hastings', 'Male', 'x@x.com', 'XXX', 'XXX')
+Insert into Employees values ('Steve', 'Pound', 'Male', 'y@y.com', 'YYY', 'YYY')
+Insert into Employees values ('Ben', 'Hoskins', 'Male', 'z@z.com', 'ZZZ', 'ZZZ')
+Insert into Employees values ('Philip', 'Hastings', 'Male', 'a@a.com', 'AAA', 'AAA')
+Insert into Employees values ('Mary', 'Lambeth', 'Female', 'b@b.com', 'BBB', 'BBB')
+
+When you retrieve Employees without checking "Include Contact Details" checkbox, 
+the following query is generated by the entity framework. Use SQL Profile to view the generated query. 
+Notice that Email, Mobile and LandLine column values are not loaded.
+SELECT
+[Extent1].[EmployeeID] AS [EmployeeID],
+[Extent1].[FirstName] AS [FirstName],
+[Extent1].[LastName] AS [LastName],
+[Extent1].[Gender] AS [Gender]
+FROM [dbo].[Employees] AS [Extent1]
+
+When you check "Include Contact Details" checkbox, the following query is generated 
+SELECT
+[Extent1].[EmployeeID] AS [EmployeeID],
+[Extent1].[FirstName] AS [FirstName],
+[Extent1].[LastName] AS [LastName],
+[Extent1].[Gender] AS [Gender],
+[Extent1].[Email] AS [Email],
+[Extent1].[Mobile] AS [Mobile],
+[Extent1].[LandLine] AS [LandLine]
+FROM [dbo].[Employees] AS [Extent1]
